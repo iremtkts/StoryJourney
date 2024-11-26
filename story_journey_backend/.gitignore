@@ -32,3 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 /.metadata/
+
+### Firebase ###
+src/main/resources/storyjourney-fb70e-firebase-adminsdk-vu6rg-60516da577.json
+
