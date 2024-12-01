@@ -10,8 +10,9 @@ import storyjourney.story_journey_backend.Model.Video;
 
 import org.springframework.stereotype.Service;
 
-
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class VideoService {
@@ -41,4 +42,25 @@ public class VideoService {
             throw new ResourceNotFoundException("Video not found with ID: " + videoId, e);
         }
     }
+    
+    public List<Video> getAllVideos() {
+        try {
+            return db.collection("videos").get().get()
+                    .getDocuments()
+                    .stream()
+                    .map(doc -> doc.toObject(Video.class))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch videos", e);
+        }
+    }
+
+    public void deleteVideo(String videoId) {
+        try {
+            db.collection("videos").document(videoId).delete().get();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to delete video", e);
+        }
+    }
+
 }
