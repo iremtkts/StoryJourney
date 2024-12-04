@@ -29,4 +29,10 @@ public class VideoController {
     public ResponseEntity<Video> getVideoById(@PathVariable String id) {
         return ResponseEntity.ok(videoService.getVideoById(id));
     }
+    
+    @GetMapping("/{id}/views")
+    public ResponseEntity<Long> getVideoViewCount(@PathVariable String id) {
+        return ResponseEntity.ok(videoService.getVideoViewCount(id));
+    }
+
 }

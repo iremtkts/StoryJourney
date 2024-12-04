@@ -62,5 +62,19 @@ public class VideoService {
             throw new RuntimeException("Failed to delete video", e);
         }
     }
+    
+    public long getVideoViewCount(String videoId) {
+        try {
+            return db.collection("views")
+                     .whereEqualTo("videoRef", db.collection("videos").document(videoId))
+                     .get()
+                     .get()
+                     .getDocuments()
+                     .size();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch view count for video", e);
+        }
+    }
+
 
 }
