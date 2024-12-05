@@ -25,14 +25,18 @@ public class VideoService {
         video.setDescription(videoDto.getDescription());
         video.setUrl(videoDto.getUrl());
 
+        // Varsayılan değerleri ayarla
+        video.setAgeGroup(videoDto.getAgeGroup() != null ? videoDto.getAgeGroup() : "General");
+        video.setIsPremium(videoDto.getIsPremium() != null ? videoDto.getIsPremium() : false);
+
         try {
-     
             return db.collection("videos").add(video).get().getId();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to create video", e);
         }
     }
+
 
     public Video getVideoById(String videoId) {
         try {

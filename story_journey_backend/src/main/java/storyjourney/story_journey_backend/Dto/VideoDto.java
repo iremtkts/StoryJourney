@@ -6,9 +6,13 @@ import lombok.Data;
 @Data
 public class VideoDto {
     private String title;
-    private String description;
+	private String description;
     private String url;
-	public String getTitle() {
+    private String ageGroup; // Opsiyonel
+    private Boolean isPremium; // Opsiyonel
+
+    // Getter ve Setter'lar
+    public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
@@ -25,5 +29,17 @@ public class VideoDto {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public String getAgeGroup() {
+		return ageGroup;
+	}
+	public void setAgeGroup(String ageGroup) {
+		this.ageGroup = ageGroup;
+	}
+	public Boolean getIsPremium() {
+		return isPremium;
+	}
+	public void setIsPremium(Boolean isPremium) {
+		this.isPremium = isPremium;
 	}
 }

@@ -16,7 +16,7 @@ public class View {
     @DocumentId
     private String viewId;
 
-    @JsonSerialize(using = DocumentReferenceConverter.DocumentReferenceSerializer.class)
+	@JsonSerialize(using = DocumentReferenceConverter.DocumentReferenceSerializer.class)
     @JsonDeserialize(using = DocumentReferenceConverter.DocumentReferenceDeserializer.class)
     private DocumentReference userRef;
 
@@ -26,4 +26,36 @@ public class View {
 
     @ServerTimestamp
     private Timestamp watchedAt;
+    
+    public String getViewId() {
+		return viewId;
+	}
+
+	public void setViewId(String viewId) {
+		this.viewId = viewId;
+	}
+
+	public DocumentReference getUserRef() {
+		return userRef;
+	}
+
+	public void setUserRef(DocumentReference userRef) {
+		this.userRef = userRef;
+	}
+
+	public DocumentReference getVideoRef() {
+		return videoRef;
+	}
+
+	public void setVideoRef(DocumentReference videoRef) {
+		this.videoRef = videoRef;
+	}
+
+	public Timestamp getWatchedAt() {
+		return watchedAt;
+	}
+
+	public void setWatchedAt(Timestamp watchedAt) {
+		this.watchedAt = watchedAt;
+	}
 }

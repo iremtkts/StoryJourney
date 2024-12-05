@@ -21,9 +21,16 @@ public class VideoController {
 
     @PostMapping
     public ResponseEntity<String> createVideo(@RequestBody VideoDto videoDto) {
+        // Zorunlu alanların kontrolü
+        if (videoDto.getTitle() == null || videoDto.getDescription() == null || videoDto.getUrl() == null) {
+            return ResponseEntity.badRequest().body("Title, description, and URL are required.");
+        }
+
+        // Video oluştur
         String videoId = videoService.createVideo(videoDto);
         return ResponseEntity.ok("Video created with ID: " + videoId);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideoById(@PathVariable String id) {
