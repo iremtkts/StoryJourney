@@ -1,27 +1,58 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function SignUpPage() {
   const [formData, setFormData] = useState({
-    name: "",
+    firstname: "",
+    lastname: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
 
-  const handleSignUp = (e) => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const navigate = useNavigate(); 
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
+
+    
     if (formData.password !== formData.confirmPassword) {
-      alert("Şifreler eşleşmiyor!");
+      setErrorMessage("Şifreler eşleşmiyor!");
+      setSuccessMessage("");
       return;
     }
-    console.log("User registered:", formData);
+
+    try {
+      // Backend'e kayıt isteği gönder
+      const response = await axios.post("http://localhost:8080/api/users", {
+        firstname: formData.firstname,
+        lastname: formData.lastname,
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (response.status === 201) {
+        setSuccessMessage("Kayıt başarılı! Giriş sayfasına yönlendiriliyorsunuz...");
+        setErrorMessage(""); 
+        setTimeout(() => {
+          navigate("/"); 
+        }, 2000); 
+      }
+    } catch (error) {
+      console.error("Kayıt sırasında hata oluştu:", error);
+      setErrorMessage("Kayıt işlemi başarısız. Lütfen tekrar deneyin.");
+      setSuccessMessage(""); 
+    }
   };
 
   return (
     <div
       className="min-h-screen flex items-center justify-center bg-cover bg-center"
       style={{
-        backgroundImage: `url('/images/background.webp')`, 
+        backgroundImage: `url('/images/background.webp')`,
       }}
     >
       {/* Form Container */}
@@ -32,21 +63,48 @@ function SignUpPage() {
         <p className="text-center text-gray-500 mb-4">
           Aramıza katıl ve eğlenceye başla!
         </p>
+        {errorMessage && (
+          <div className="text-red-500 text-center mb-4">{errorMessage}</div>
+        )}
+        {successMessage && (
+          <div className="text-green-500 text-center mb-4">{successMessage}</div>
+        )}
         <form onSubmit={handleSignUp}>
           <div className="mb-4">
             <label
-              htmlFor="name"
+              htmlFor="firstname"
               className="block text-sm font-medium text-gray-700"
             >
-              İsim
+              Ad
             </label>
             <input
-              id="name"
+              id="firstname"
               type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              value={formData.firstname}
+              onChange={(e) =>
+                setFormData({ ...formData, firstname: e.target.value })
+              }
               className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
               placeholder="Adınızı girin"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="lastname"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Soyad
+            </label>
+            <input
+              id="lastname"
+              type="text"
+              value={formData.lastname}
+              onChange={(e) =>
+                setFormData({ ...formData, lastname: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="Soyadınızı girin"
               required
             />
           </div>
@@ -125,3 +183,4 @@ function SignUpPage() {
 }
 
 export default SignUpPage;
+
