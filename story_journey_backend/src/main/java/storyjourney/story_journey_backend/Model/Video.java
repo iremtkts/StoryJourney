@@ -61,15 +61,15 @@ public class Video {
 	public void setIsPremium(Boolean isPremium) {
 		this.isPremium = isPremium;
 	}
-	public Timestamp getcreatedAt() {
-		return createdAt;
-	}
+	public String getCreatedAtString() {
+        return (createdAt != null) ? createdAt.toDate().toString() : null;
+    }
 	public void setcreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
+	public String getUpdatedAtString() {
+        return (updatedAt != null) ? updatedAt.toDate().toString() : null;
+    }
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
 	}

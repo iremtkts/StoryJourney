@@ -41,25 +41,22 @@ public class AdminService {
         }
     }
 
-    public boolean authenticateAdmin(String email, String rawPassword) {
+    public Admin findByEmail(String email) {
         try {
-            ApiFuture<QuerySnapshot> query = db.collection("admins").whereEqualTo("email", email).get();
-            QuerySnapshot querySnapshot = query.get();
+            QuerySnapshot snapshot = db.collection("admins")
+                    .whereEqualTo("email", email)
+                    .limit(1)
+                    .get()
+                    .get(); // .get() ile Future sonucunu bekliyoruz
 
-            if (!querySnapshot.isEmpty()) {
-                Admin admin = querySnapshot.getDocuments().get(0).toObject(Admin.class);
-                String hashedPassword = admin.getPassword();
-
-                if (admin.getIsActive() && passwordEncoder.matches(rawPassword, hashedPassword)) {
-                    return true;
-                } else {
-                    throw new RuntimeException("Admin is inactive or credentials are incorrect.");
-                }
+            if (!snapshot.isEmpty()) {
+                return snapshot.getDocuments().get(0).toObject(Admin.class);
             } else {
-                throw new RuntimeException("Admin not found.");
+                return null; // email'e sahip admin bulunamadı
             }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException("Failed to authenticate admin", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

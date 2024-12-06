@@ -79,18 +79,18 @@ public class Admin {
 	/**
 	 * @return the updatedAt
 	 */
-	public Timestamp getcreatedAt() {
-		return createdAt;
-	}
+	public String getCreatedAtString() {
+        return (createdAt != null) ? createdAt.toDate().toString() : null;
+    }
 	/**
 	 * @param updatedAt the updatedAt to set
 	 */
 	public void setcreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
+	public String getUpdatedAtString() {
+        return (updatedAt != null) ? updatedAt.toDate().toString() : null;
+    }
 	/**
 	 * @param updatedAt the updatedAt to set
 	 */
