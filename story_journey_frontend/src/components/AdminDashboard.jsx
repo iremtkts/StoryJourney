@@ -6,11 +6,15 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [videos, setVideos] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [url, setUrl] = useState("");
+
   const navigate = useNavigate();
+  const BASE_URL = "http://localhost:8080/api/admin";
 
-  const BASE_URL = "http://localhost:8080/api/admin"; // Backend URL'sini buraya yazın
-
- 
   const formatDate = (createdAt) => {
     if (!createdAt) return "Tarih Yok";
     if (createdAt._seconds) {
@@ -22,7 +26,6 @@ function AdminDashboard() {
     return "Tarih Yok";
   };
 
-  // Kullanıcıları getir
   const fetchUsers = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/users`);
@@ -33,7 +36,6 @@ function AdminDashboard() {
     }
   };
 
-  // Videoları getir
   const fetchVideos = async () => {
     try {
       const response = await axios.get(`${BASE_URL}/videos`);
@@ -44,7 +46,6 @@ function AdminDashboard() {
     }
   };
 
-  // Video sil
   const deleteVideo = async (videoId) => {
     try {
       await axios.delete(`${BASE_URL}/videos/${videoId}`);
@@ -56,14 +57,37 @@ function AdminDashboard() {
     }
   };
 
-  // Kullanıcı ve video verilerini yükle
+  const handleVideoSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage("");
+
+    try {
+      const response = await axios.post(`${BASE_URL}/videos`, {
+        title,
+        description,
+        ageGroup,
+        url: url || ""
+      });
+      
+      setVideos((prevVideos) => [...prevVideos, response.data]);
+      setTitle("");
+      setDescription("");
+      setAgeGroup("");
+      setUrl("");
+      alert("Video başarıyla eklendi!");
+    } catch (error) {
+      setErrorMessage("Video eklenirken bir hata oluştu.");
+      console.error("Video ekleme hata:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchVideos();
   }, []);
 
   const handleLogout = () => {
-    navigate("/"); // Login sayfasına yönlendirme
+    navigate("/");
   };
 
   return (
@@ -97,11 +121,75 @@ function AdminDashboard() {
           <div className="text-red-500 bg-red-100 p-4 rounded-lg">{errorMessage}</div>
         )}
 
+        {/* Yeni Video Ekleme Formu */}
+        <section>
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">Yeni Video Ekle</h2>
+          <div className="p-4 bg-white rounded-lg shadow-lg">
+            <form onSubmit={handleVideoSubmit} className="space-y-4">
+              <div>
+                <label className="block text-gray-700 mb-2">Başlık</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  className="w-full border border-gray-300 rounded p-2"
+                  placeholder="Video başlığını girin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Açıklama</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  className="w-full border border-gray-300 rounded p-2"
+                  placeholder="Video açıklamasını girin"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Yaş Grubu</label>
+                <input
+                  type="text"
+                  value={ageGroup}
+                  onChange={(e) => setAgeGroup(e.target.value)}
+                  className="w-full border border-gray-300 rounded p-2"
+                  placeholder="Yaş grubu (örn: 3-6 yaş)"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Video URL veya OverlyApp Linki</label>
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="w-full border border-gray-300 rounded p-2"
+                  placeholder="Video URL'si veya boş bırakın (OverlyApp linki atanır)"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="py-2 px-4 rounded text-white"
+                style={{
+                  backgroundColor: "#8FBFAD",
+                }}
+              >
+                Video Ekle
+              </button>
+            </form>
+          </div>
+        </section>
+
         {/* Kullanıcı Tablosu */}
         <section>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Kullanıcılar</h2>
           <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            <div className="overflow-x-auto bg-white p-4 rounded-lg">
+            {/* max-height ve overflow-y eklendi */}
+            <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
               <table className="min-w-full bg-white">
                 <thead>
                   <tr>
@@ -134,7 +222,8 @@ function AdminDashboard() {
         <section>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Videolar</h2>
           <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            <div className="overflow-x-auto bg-white p-4 rounded-lg">
+            {/* max-height ve overflow-y eklendi */}
+            <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
               <table className="min-w-full bg-white">
                 <thead>
                   <tr>
@@ -143,6 +232,7 @@ function AdminDashboard() {
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Açıklama</th>
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Yaş Grubu</th>
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Oluşturulma Tarihi</th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">URL</th>
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">İşlemler</th>
                   </tr>
                 </thead>
@@ -154,6 +244,15 @@ function AdminDashboard() {
                       <td className="p-4 text-sm text-gray-700">{video.description}</td>
                       <td className="p-4 text-sm text-gray-700">{video.ageGroup || "Bilinmiyor"}</td>
                       <td className="p-4 text-sm text-gray-700">{formatDate(video.createdAt)}</td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {video.url ? (
+                          <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                            Linke Git
+                          </a>
+                        ) : (
+                          "Yok"
+                        )}
+                      </td>
                       <td className="p-4 text-sm">
                         <button
                           onClick={() => deleteVideo(video.id)}
@@ -170,7 +269,7 @@ function AdminDashboard() {
           </div>
         </section>
 
-        {/* Views Card */}
+        {/* İzlenme Sayısı Kartı */}
         <section>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">İzlenme Sayısı</h2>
           <div className="p-4 bg-white rounded-lg shadow-lg">
