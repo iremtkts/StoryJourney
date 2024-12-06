@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 
 function UserDashboard() {
   const [videos, setVideos] = useState([]);
@@ -9,7 +11,6 @@ function UserDashboard() {
   const BASE_URL = "http://localhost:8080/api/admin"; // Backend URL
 
   useEffect(() => {
- 
     const fetchVideos = async () => {
       try {
         const response = await axios.get(`${BASE_URL}/videos`);
@@ -23,7 +24,7 @@ function UserDashboard() {
   }, []);
 
   const handleLogout = () => {
-    navigate("/"); 
+    navigate("/");
   };
 
   return (
@@ -31,17 +32,9 @@ function UserDashboard() {
       {/* Üst Navigasyon */}
       <nav className="bg-gradient-to-r from-purple-300 to-white shadow p-4 flex justify-between items-center">
         <div className="flex items-center">
-          <img
-            src="favicon.ico"
-            alt="Hikaye Yolculuğu Logo"
-            className="w-8 h-8 mr-2 rounded-full"
-          />
           <h1 className="text-xl font-bold text-purple-700">Hikaye Yolculuğu</h1>
         </div>
         <div>
-          <span className="text-gray-700 font-medium mr-4">
-            Hoş Geldiniz, Kullanıcı!
-          </span>
           <button
             onClick={handleLogout}
             className="bg-purple-500 text-white py-1 px-3 rounded hover:bg-purple-600"
@@ -71,10 +64,7 @@ function UserDashboard() {
                     Yaş Grubu
                   </th>
                   <th className="text-left p-4 text-sm font-semibold text-gray-700">
-                    Yayın Tarihi
-                  </th>
-                  <th className="text-left p-4 text-sm font-semibold text-gray-700">
-                    İndir
+                    Mağaza Bağlantıları
                   </th>
                 </tr>
               </thead>
@@ -89,14 +79,22 @@ function UserDashboard() {
                       <td className="p-4 text-sm text-gray-500">
                         {video.ageGroup || "Bilinmiyor"}
                       </td>
-                      <td className="p-4 text-sm text-gray-500">{video.date}</td>
-                      <td className="p-4 text-sm">
+                      <td className="p-4 text-sm flex space-x-4">
                         <a
-                          href={video.downloadLink}
-                          download
-                          className="bg-purple-500 text-white py-1 px-3 rounded hover:bg-purple-600"
+                          href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
                         >
-                          İndir
+                          <FontAwesomeIcon icon={faAppStore} size="2x" />
+                        </a>
+                        <a
+                          href="https://play.google.com/store/apps/details?id=com.Overly.Cloud&pcampaignid=web_share"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
+                        >
+                          <FontAwesomeIcon icon={faGooglePlay} size="2x" />
                         </a>
                       </td>
                     </tr>
@@ -104,7 +102,7 @@ function UserDashboard() {
                 ) : (
                   <tr>
                     <td
-                      colSpan="5"
+                      colSpan="4"
                       className="text-center p-4 text-sm text-gray-500"
                     >
                       Video bulunamadı.
@@ -121,4 +119,3 @@ function UserDashboard() {
 }
 
 export default UserDashboard;
-

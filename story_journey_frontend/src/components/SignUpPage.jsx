@@ -70,8 +70,101 @@ function SignUpPage() {
           <div className="text-green-500 text-center mb-4">{successMessage}</div>
         )}
         <form onSubmit={handleSignUp}>
-          {/* Inputlar */}
-          {/* ... */}
+          <div className="mb-4">
+            <label
+              htmlFor="firstname"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Ad
+            </label>
+            <input
+              id="firstname"
+              type="text"
+              value={formData.firstname}
+              onChange={(e) =>
+                setFormData({ ...formData, firstname: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="Adınızı girin"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="lastname"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Soyad
+            </label>
+            <input
+              id="lastname"
+              type="text"
+              value={formData.lastname}
+              onChange={(e) =>
+                setFormData({ ...formData, lastname: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="Soyadınızı girin"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="E-postanızı girin"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Şifre
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={formData.password}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="Şifrenizi girin"
+              required
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Şifreyi Doğrula
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-400 focus:border-blue-400"
+              placeholder="Şifrenizi tekrar girin"
+              required
+            />
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-400 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"

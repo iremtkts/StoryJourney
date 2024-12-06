@@ -5,6 +5,8 @@ import SignUpPage from "./components/SignUpPage";
 import ForgotPasswordPage from "./components/ForgotPasswordPage";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
+import VerifyTokenPage from "./components/VerifyTokenPage";
+
 
 function App() {
   return (
