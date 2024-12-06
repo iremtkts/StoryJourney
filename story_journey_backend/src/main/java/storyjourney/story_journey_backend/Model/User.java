@@ -76,15 +76,15 @@ public class User {
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	public Timestamp getcreatedAt() {
-		return createdAt;
-	}
+	public String getCreatedAtString() {
+        return (createdAt != null) ? createdAt.toDate().toString() : null;
+    }
 	public void setcreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	} 
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
+	public String getUpdatedAtString() {
+        return (updatedAt != null) ? updatedAt.toDate().toString() : null;
+    }
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
 	} 

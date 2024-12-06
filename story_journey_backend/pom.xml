@@ -76,9 +76,31 @@
 <dependency>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-firestore</artifactId>
-    <version>3.12.0</version> <!-- Güncel versiyonu kullanabilirsiniz -->
+    <version>3.12.0</version> 
 </dependency>
 
+<!-- JJWT Core API -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version>
+    </dependency>
+
+    <!-- JJWT Implementation -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+
+    <!-- JJWT için Jackson desteği -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
 
 </dependencies>
 

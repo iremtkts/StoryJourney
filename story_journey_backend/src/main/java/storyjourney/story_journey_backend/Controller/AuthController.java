@@ -1,31 +1,33 @@
 package storyjourney.story_journey_backend.Controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import storyjourney.story_journey_backend.Dto.LoginDto;
+import storyjourney.story_journey_backend.Model.Admin;
+import storyjourney.story_journey_backend.Model.Status;
+import storyjourney.story_journey_backend.Model.User;
+import storyjourney.story_journey_backend.Service.AdminService;
+import storyjourney.story_journey_backend.Service.JwtService;
 import storyjourney.story_journey_backend.Service.UserService;
+
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final UserService userService;
+    private final AdminService adminService; 
+    private final JwtService jwtService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, AdminService adminService, JwtService jwtService) {
         this.userService = userService;
+        this.adminService = adminService;
+        this.jwtService = jwtService;
     }
     
     @GetMapping("/verify")
@@ -39,17 +41,50 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         if (loginDto == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request body is missing or invalid.");
         }
 
-        System.out.println("Email: " + loginDto.getEmail());
-        System.out.println("Password: " + loginDto.getPassword());
-
-        if (loginDto.getEmail() == null || loginDto.getPassword() == null) {
+        String email = loginDto.getEmail();
+        String password = loginDto.getPassword();
+        if (email == null || password == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email or password is missing.");
         }
-        return ResponseEntity.ok("Login successful!");
+
+        // Önce admin koleksiyonunda email var mı diye bak
+        Admin admin = adminService.findByEmail(email);
+        if (admin != null) {
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            if (passwordEncoder.matches(password, admin.getPassword())) {
+                String token = jwtService.generateToken(email, "ADMIN");
+                return ResponseEntity.ok().body(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials for admin.");
+            }
+        }
+
+        // Admin bulunamadı, user koleksiyonunu kontrol et
+        User user = userService.findByEmail(email);
+        if (user != null) {
+            // Kullanıcının durumu kontrol ediliyor
+            if (user.getStatus() == Status.PENDING) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email not verified. Please verify your email before logging in.");
+            }
+
+            // Şifre kontrolü
+            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            if (passwordEncoder.matches(password, user.getPassword())) {
+                String token = jwtService.generateToken(email, "USER");
+                return ResponseEntity.ok().body(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials for user.");
+            }
+        }
+
+        // Hiçbiri bulunamadı
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User or admin not found with given email.");
     }
+
+
 }

@@ -39,19 +39,6 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> adminLogin(@RequestBody AdminDto adminDto) {
-        try {
-            boolean isAuthenticated = adminService.authenticateAdmin(adminDto.getEmail(), adminDto.getPassword());
-            if (isAuthenticated) {
-                return ResponseEntity.ok("Admin login successful!");
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials.");
-            }
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-        }
-    }
     
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
