@@ -1,22 +1,30 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate(); // Burada navigate'i tanımlıyoruz
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Backend'e istek gönder
-      const response = await axios.post("http://localhost:8080/api/auth/forgot-password", null, {
-        params: { email },
-      });
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/forgot-password",
+        null,
+        {
+          params: { email },
+        }
+      );
 
       if (response.status === 200) {
         setSuccessMessage(response.data);
         setErrorMessage("");
+
+        // Token doğrulama sayfasına yönlendir
+        navigate("/verify-token", { state: { email } });
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {

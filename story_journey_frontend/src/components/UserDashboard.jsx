@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 
 function UserDashboard() {
   const [videos, setVideos] = useState([]);
@@ -32,6 +30,12 @@ function UserDashboard() {
       {/* Üst Navigasyon */}
       <nav className="bg-gradient-to-r from-purple-300 to-white shadow p-4 flex justify-between items-center">
         <div className="flex items-center">
+          {/* Uygulama İkonu */}
+          <img
+            src="/favicon.ico" // İkonun doğru yolu
+            alt="Uygulama Logosu"
+            className="w-10 h-10 mr-3 rounded-full" // Yuvarlak ve boyutlandırma
+          />
           <h1 className="text-xl font-bold text-purple-700">Hikaye Yolculuğu</h1>
         </div>
         <div>
@@ -81,20 +85,20 @@ function UserDashboard() {
                       </td>
                       <td className="p-4 text-sm flex space-x-4">
                         <a
-                          href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
+                          href="https://www.apple.com/app-store/"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-700 hover:text-gray-900"
                         >
-                          <FontAwesomeIcon icon={faAppStore} size="2x" />
+                          App Store İkonu
                         </a>
                         <a
-                          href="https://play.google.com/store/apps/details?id=com.Overly.Cloud&pcampaignid=web_share"
+                          href="https://play.google.com/store"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-700 hover:text-gray-900"
                         >
-                          <FontAwesomeIcon icon={faGooglePlay} size="2x" />
+                          Google Play İkonu
                         </a>
                       </td>
                     </tr>

@@ -13,21 +13,22 @@ function VerifyTokenPage() {
 
   const handleTokenSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/users/verify`,
-        null, 
+        `http://localhost:8080/api/auth/verify-token`,
+        null,
         {
-          params: { token },
+          params: { token, email }, // Token ve email gönderilir
         }
       );
-
+  
       if (response.status === 200) {
-        setSuccessMessage("Doğrulama başarılı! Giriş yapabilirsiniz.");
+        setSuccessMessage("Doğrulama başarılı! Şifre yenileme ekranına yönlendiriliyorsunuz.");
         setErrorMessage("");
+  
         setTimeout(() => {
-          navigate("/"); // Giriş sayfasına yönlendirme
+          navigate("/reset-password", { state: { email, token } }); // Şifre yenileme ekranına yönlendir
         }, 2000);
       }
     } catch (error) {
@@ -36,6 +37,7 @@ function VerifyTokenPage() {
       setSuccessMessage("");
     }
   };
+  
 
   return (
     <div
