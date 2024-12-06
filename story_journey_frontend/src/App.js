@@ -15,6 +15,7 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/verify-token" element={<VerifyTokenPage />} />
       </Routes>
     </Router>
   );

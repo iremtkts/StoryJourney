@@ -1,24 +1,43 @@
 import React, { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", email, password);
 
-    // Simüle edilen backend doğrulama
-    // Burada backend'den dönen role bilgisi alınır
-    const dummyRole = email === "admin@example.com" ? "admin" : "user";
+    try {
+      const response = await axios.post("http://localhost:8080/api/auth/login", {
+        email,
+        password,
+      });
 
-    if (dummyRole === "admin") {
-      navigate("/admin-dashboard"); // Admin Dashboard'a yönlendirme
-    } else {
-      navigate("/user-dashboard"); // Kullanıcı Dashboard'a yönlendirme
+      if (response.status === 200) {
+        // Kullanıcı başarılı giriş yaptıysa role bilgisine göre yönlendir
+        const role = response.data.role; // Backend'den "role" bekleniyor
+        if (role === "ADMIN") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/user-dashboard");
+        }
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 403) {
+        // Eğer email status PENDING ise
+        setErrorMessage("E-postanız henüz doğrulanmamış. Lütfen doğrulama sayfasına gidin.");
+      } else {
+        setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
+      }
     }
+  };
+
+  const handleGoToVerification = () => {
+    navigate("/verify-token", { state: { email } }); // Doğrulama sayfasına yönlendirme
   };
 
   return (
@@ -28,7 +47,6 @@ function LoginPage() {
         backgroundImage: `url('/images/background.webp')`,
       }}
     >
-      {/* Form Container */}
       <div className="bg-white/80 rounded-lg shadow-lg p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold text-center text-pink-500 mb-6">
           Hoş Geldiniz!
@@ -36,6 +54,19 @@ function LoginPage() {
         <p className="text-center text-gray-500 mb-4">
           Platformumuza giriş yapın ve eğlenceye katılın!
         </p>
+        {errorMessage && (
+          <div className="text-red-500 text-center mb-4">
+            {errorMessage}
+            {errorMessage.includes("doğrulanmamış") && (
+              <button
+                onClick={handleGoToVerification}
+                className="text-blue-500 underline ml-2"
+              >
+                Doğrulama Sayfasına Git
+              </button>
+            )}
+          </div>
+        )}
         <form onSubmit={handleLogin}>
           <div className="mb-4">
             <label
