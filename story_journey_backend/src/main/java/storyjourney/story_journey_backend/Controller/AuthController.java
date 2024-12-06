@@ -86,5 +86,18 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User or admin not found with given email.");
     }
 
+    
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        try {
+            userService.handleForgotPassword(email);
+            return ResponseEntity.ok("Şifre sıfırlama için bir token e-posta adresinize gönderildi.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu. Lütfen tekrar deneyin.");
+        }
+    }
+
 
 }

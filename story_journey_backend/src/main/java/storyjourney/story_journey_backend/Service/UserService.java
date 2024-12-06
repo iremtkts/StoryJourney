@@ -123,5 +123,33 @@ public class UserService {
                 throw new RuntimeException("Failed to verify email token", e);
             }
         }
+        
+        public void handleForgotPassword(String email) {
+            try {
+                // Kullanıcıyı e-posta ile bul
+                User user = findByEmail(email.toLowerCase());
+
+                if (user == null) {
+                    throw new IllegalArgumentException("E-posta adresiniz kayıtlı değil.");
+                }
+
+                // Kullanıcının durumunu `PENDING` yap ve yeni token oluştur
+                String token = TokenUtil.generateEmailVerificationToken();
+                user.setEmailVerificationToken(token);
+                user.setStatus(Status.PENDING);
+
+                // Veritabanında güncelle
+                db.collection("users").document(user.getUserId()).update(
+                    "emailVerificationToken", token,
+                    "status", Status.PENDING.toString()
+                );
+
+                // Token'ı e-posta ile gönder
+                sendVerificationEmail(user.getEmail(), token);
+            } catch (Exception e) {
+                throw new RuntimeException("Şifre sıfırlama işlemi sırasında bir hata oluştu.", e);
+            }
+        }
+
 
 }
