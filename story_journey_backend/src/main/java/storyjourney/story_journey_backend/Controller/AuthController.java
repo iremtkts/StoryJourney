@@ -1,5 +1,7 @@
 package storyjourney.story_journey_backend.Controller;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,49 +44,44 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-        if (loginDto == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Request body is missing or invalid.");
+        if (loginDto == null || loginDto.getEmail() == null || loginDto.getPassword() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email veya şifre eksik.");
         }
 
         String email = loginDto.getEmail();
         String password = loginDto.getPassword();
-        if (email == null || password == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email or password is missing.");
-        }
 
-        // Önce admin koleksiyonunda email var mı diye bak
+        // Admin kontrolü
         Admin admin = adminService.findByEmail(email);
         if (admin != null) {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             if (passwordEncoder.matches(password, admin.getPassword())) {
                 String token = jwtService.generateToken(email, "ADMIN");
-                return ResponseEntity.ok().body(token);
+                return ResponseEntity.ok(Map.of("role", "ADMIN", "token", token));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials for admin.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Admin şifresi hatalı.");
             }
         }
 
-        // Admin bulunamadı, user koleksiyonunu kontrol et
+        // Kullanıcı kontrolü
         User user = userService.findByEmail(email);
         if (user != null) {
-            // Kullanıcının durumu kontrol ediliyor
             if (user.getStatus() == Status.PENDING) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Email not verified. Please verify your email before logging in.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("E-posta doğrulanmamış.");
             }
 
-            // Şifre kontrolü
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             if (passwordEncoder.matches(password, user.getPassword())) {
                 String token = jwtService.generateToken(email, "USER");
-                return ResponseEntity.ok().body(token);
+                return ResponseEntity.ok(Map.of("role", "USER", "token", token));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials for user.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Kullanıcı şifresi hatalı.");
             }
         }
 
-        // Hiçbiri bulunamadı
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User or admin not found with given email.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Kullanıcı veya admin bulunamadı.");
     }
+
 
     
     @PostMapping("/forgot-password")

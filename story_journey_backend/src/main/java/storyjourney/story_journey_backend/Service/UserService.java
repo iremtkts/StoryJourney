@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
@@ -126,25 +127,19 @@ public class UserService {
         
         public void handleForgotPassword(String email) {
             try {
-                // Kullanıcıyı e-posta ile bul
                 User user = findByEmail(email.toLowerCase());
-
                 if (user == null) {
                     throw new IllegalArgumentException("E-posta adresiniz kayıtlı değil.");
                 }
 
-                // Kullanıcının durumunu `PENDING` yap ve yeni token oluştur
                 String token = TokenUtil.generateEmailVerificationToken();
-                user.setEmailVerificationToken(token);
-                user.setStatus(Status.PENDING);
-
-                // Veritabanında güncelle
                 db.collection("users").document(user.getUserId()).update(
-                    "emailVerificationToken", token,
-                    "status", Status.PENDING.toString()
+                    Map.of(
+                        "emailVerificationToken", token,
+                        "status", Status.PENDING.toString()
+                    )
                 );
 
-                // Token'ı e-posta ile gönder
                 sendVerificationEmail(user.getEmail(), token);
             } catch (Exception e) {
                 throw new RuntimeException("Şifre sıfırlama işlemi sırasında bir hata oluştu.", e);
