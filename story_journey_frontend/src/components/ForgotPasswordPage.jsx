@@ -23,8 +23,8 @@ function ForgotPasswordPage() {
         setSuccessMessage(response.data);
         setErrorMessage("");
 
-        // Token doğrulama sayfasına yönlendir
-        navigate("/verify-token", { state: { email } });
+       
+        navigate("/verify-token", { state: { email, isPasswordReset: true } }); 
       }
     } catch (error) {
       if (error.response && error.response.status === 404) {

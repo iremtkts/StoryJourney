@@ -9,7 +9,7 @@ function VerifyTokenPage() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email; // Kayıt sırasında gelen email
+  const { email, isPasswordReset } = location.state || {}; 
 
   const handleTokenSubmit = async (e) => {
     e.preventDefault();
@@ -23,10 +23,18 @@ function VerifyTokenPage() {
       );
   
       if (response.status === 200) {
-        setSuccessMessage("Doğrulama başarılı!");
+        setSuccessMessage(
+          isPasswordReset
+            ? "Token doğrulandı! Şimdi yeni şifre belirleyin."
+            : "E-posta doğrulandı! Giriş yapabilirsiniz."
+        );
         setErrorMessage("");
         setTimeout(() => {
-          navigate("/");
+          if (isPasswordReset) {
+            navigate("/reset-password", { state: { email, token } });
+          } else {
+            navigate("/");
+          }
         }, 2000);
       }
     } catch (error) {
@@ -35,7 +43,6 @@ function VerifyTokenPage() {
       setSuccessMessage("");
     }
   };
-  
   
 
   return (
@@ -47,10 +54,12 @@ function VerifyTokenPage() {
     >
       <div className="bg-white/80 rounded-lg shadow-lg p-8 max-w-md w-full">
         <h1 className="text-3xl font-bold text-center text-purple-500 mb-6">
-          E-posta Doğrulama
+          {isPasswordReset ? "Şifre Sıfırlama Doğrulaması" : "E-posta Doğrulama"}
         </h1>
         <p className="text-center text-gray-500 mb-4">
-          Lütfen e-postanıza gönderilen kodu aşağıya girin.
+          {isPasswordReset
+            ? "Lütfen şifre sıfırlama için e-postanıza gelen kodu girin."
+            : "Lütfen e-postanıza gelen doğrulama kodunu girin."}
         </p>
         {errorMessage && (
           <div className="text-red-500 text-center mb-4">{errorMessage}</div>
