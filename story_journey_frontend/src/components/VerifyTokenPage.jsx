@@ -15,7 +15,7 @@ function VerifyTokenPage() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/verify",
+        "http://localhost:8080/api/users/verify",
         null,
         {
           params: { token },
