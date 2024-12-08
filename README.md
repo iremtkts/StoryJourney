@@ -18,12 +18,7 @@ Planlama aşamasında, projenin amacı, hedef kitlesi, zaman çizelgesi ve genel
 
 ### **Ekip ve Teknolojiler**
 #### **Ekip:**
-- Yazılım geliştiriciler (Back-end, Front-end)
-- Tasarımcılar (fresco animasyon uzmanları)
-- AR içerik sağlayıcılar
-- DevOps mühendisi
-- Test mühendisi
-- Ürün yöneticisi
+- Proje Geliştiricisi (Backend- Frontend - Fresco tasarım)
 
 #### **Teknolojiler:**
 - **Back-end:** Spring Boot, Java
