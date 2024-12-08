@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -10,7 +12,6 @@ function AdminDashboard() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
-  const [url, setUrl] = useState("");
 
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:8080/api/admin";
@@ -66,14 +67,12 @@ function AdminDashboard() {
         title,
         description,
         ageGroup,
-        url: url || ""
       });
-      
+
       setVideos((prevVideos) => [...prevVideos, response.data]);
       setTitle("");
       setDescription("");
       setAgeGroup("");
-      setUrl("");
       alert("Video başarıyla eklendi!");
     } catch (error) {
       setErrorMessage("Video eklenirken bir hata oluştu.");
@@ -160,17 +159,6 @@ function AdminDashboard() {
                 />
               </div>
 
-              <div>
-                <label className="block text-gray-700 mb-2">Video URL veya OverlyApp Linki</label>
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded p-2"
-                  placeholder="Video URL'si veya boş bırakın (OverlyApp linki atanır)"
-                />
-              </div>
-
               <button
                 type="submit"
                 className="py-2 px-4 rounded text-white"
@@ -188,7 +176,6 @@ function AdminDashboard() {
         <section>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Kullanıcılar</h2>
           <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            {/* max-height ve overflow-y eklendi */}
             <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
               <table className="min-w-full bg-white">
                 <thead>
@@ -222,7 +209,6 @@ function AdminDashboard() {
         <section>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Videolar</h2>
           <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            {/* max-height ve overflow-y eklendi */}
             <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
               <table className="min-w-full bg-white">
                 <thead>
@@ -231,9 +217,7 @@ function AdminDashboard() {
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Başlık</th>
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Açıklama</th>
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">Yaş Grubu</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Oluşturulma Tarihi</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">URL</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">İşlemler</th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Mağaza Linkleri</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -243,37 +227,29 @@ function AdminDashboard() {
                       <td className="p-4 text-sm text-gray-700">{video.title}</td>
                       <td className="p-4 text-sm text-gray-700">{video.description}</td>
                       <td className="p-4 text-sm text-gray-700">{video.ageGroup || "Bilinmiyor"}</td>
-                      <td className="p-4 text-sm text-gray-700">{formatDate(video.createdAt)}</td>
-                      <td className="p-4 text-sm text-gray-700">
-                        {video.url ? (
-                          <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                            Linke Git
-                          </a>
-                        ) : (
-                          "Yok"
-                        )}
-                      </td>
-                      <td className="p-4 text-sm">
-                        <button
-                          onClick={() => deleteVideo(video.id)}
-                          className="py-1 px-3 rounded bg-red-500 text-white hover:bg-red-600"
+                      <td className="p-4 text-sm flex space-x-4">
+                        <a
+                          href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
                         >
-                          Sil
-                        </button>
+                          <FontAwesomeIcon icon={faAppStore} size="2x" />
+                        </a>
+                        <a
+                          href="https://play.google.com/store/apps/details?id=com.Overly.Cloud&pcampaignid=web_share"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
+                        >
+                          <FontAwesomeIcon icon={faGooglePlay} size="2x" />
+                        </a>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
-        </section>
-
-        {/* İzlenme Sayısı Kartı */}
-        <section>
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">İzlenme Sayısı</h2>
-          <div className="p-4 bg-white rounded-lg shadow-lg">
-            <p className="text-gray-700">Bu alan izlenme bilgileri geldiğinde güncellenecektir.</p>
           </div>
         </section>
       </main>

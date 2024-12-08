@@ -20,10 +20,14 @@ function LoginPage() {
       if (response.status === 200) {
         // Kullanıcı başarılı giriş yaptıysa role bilgisine göre yönlendir
         const role = response.data.role; // Backend'den "role" bekleniyor
-        if (role === "ADMIN") {
+        console.log("Giriş Yapan Kullanıcı Rolü:", role);
+
+        if (role && role.toUpperCase() === "ADMIN") {
           navigate("/admin-dashboard");
-        } else {
+        } else if (role && role.toUpperCase() === "USER") {
           navigate("/user-dashboard");
+        } else {
+          setErrorMessage("Geçersiz rol bilgisi. Lütfen tekrar deneyin.");
         }
       }
     } catch (error) {

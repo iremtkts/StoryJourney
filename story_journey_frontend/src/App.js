@@ -6,6 +6,7 @@ import ForgotPasswordPage from "./components/ForgotPasswordPage";
 import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import VerifyTokenPage from "./components/VerifyTokenPage";
+import ResetPasswordPage from "./components/ResetPasswordPage";
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/user-dashboard" element={<UserDashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/verify-token" element={<VerifyTokenPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Routes>
     </Router>
   );
