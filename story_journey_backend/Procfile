@@ -1,2 +1,3 @@
-web: java -Dserver.port=$PORT -jar target/*.jar
+web: cd story_journey_backend && java -jar target/*.jar
+
 
