@@ -25,7 +25,8 @@ public class Admin {
     private Timestamp createdAt;
     private Timestamp updatedAt;
     
-    public Admin() {
+    
+	public Admin() {
     	
     }
     public String getAdminId() {
@@ -79,23 +80,18 @@ public class Admin {
 	/**
 	 * @return the updatedAt
 	 */
-	public String getCreatedAtString() {
-        return (createdAt != null) ? createdAt.toDate().toString() : null;
-    }
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setcreatedAt(Timestamp createdAt) {
+	public Timestamp getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
 	}
-	public String getUpdatedAtString() {
-        return (updatedAt != null) ? updatedAt.toDate().toString() : null;
-    }
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
+	public Timestamp getUpdatedAt() {
+		return updatedAt;
+	}
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
     
 }

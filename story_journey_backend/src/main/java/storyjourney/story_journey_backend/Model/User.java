@@ -28,7 +28,8 @@ public class User {
     private Timestamp createdAt; 
     private Timestamp updatedAt;
 	
-    public User() {
+    
+	public User() {
     	
     }
     public String getUserId() {
@@ -76,19 +77,20 @@ public class User {
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	public String getCreatedAtString() {
-        return (createdAt != null) ? createdAt.toDate().toString() : null;
-    }
-	public void setcreatedAt(Timestamp createdAt) {
+	
+	public Timestamp getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(Timestamp createdAt) {
 		this.createdAt = createdAt;
-	} 
-	public String getUpdatedAtString() {
-        return (updatedAt != null) ? updatedAt.toDate().toString() : null;
-    }
+	}
+	public Timestamp getUpdatedAt() {
+		return updatedAt;
+	}
 	public void setUpdatedAt(Timestamp updatedAt) {
 		this.updatedAt = updatedAt;
-	} 
-
+	}
+	
 
 
 }
