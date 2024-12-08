@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
 
 function UserDashboard() {
   const [videos, setVideos] = useState([]);
@@ -84,21 +86,21 @@ function UserDashboard() {
                         {video.ageGroup || "Bilinmiyor"}
                       </td>
                       <td className="p-4 text-sm flex space-x-4">
-                        <a
-                          href="https://www.apple.com/app-store/"
+                      <a
+                          href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-700 hover:text-gray-900"
                         >
-                          App Store İkonu
+                          <FontAwesomeIcon icon={faAppStore} size="2x" />
                         </a>
                         <a
-                          href="https://play.google.com/store"
+                          href="https://play.google.com/store/apps/details?id=com.Overly.Cloud&pcampaignid=web_share"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-700 hover:text-gray-900"
                         >
-                          Google Play İkonu
+                          <FontAwesomeIcon icon={faGooglePlay} size="2x" />
                         </a>
                       </td>
                     </tr>
