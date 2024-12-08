@@ -10,35 +10,33 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     try {
       const response = await axios.post("http://localhost:8080/api/auth/login", {
         email,
         password,
       });
-
+  
       if (response.status === 200) {
-        // Kullanıcı başarılı giriş yaptıysa role bilgisine göre yönlendir
-        const role = response.data.role; // Backend'den "role" bekleniyor
-        console.log("Giriş Yapan Kullanıcı Rolü:", role);
-
-        if (role && role.toUpperCase() === "ADMIN") {
+        const { role, token } = response.data; // Backend'den gelen token ve role bilgisi
+        localStorage.setItem("authToken", token); // Token'ı localStorage'a kaydet
+        if (role === "ADMIN") {
           navigate("/admin-dashboard");
-        } else if (role && role.toUpperCase() === "USER") {
+        } else if (role === "USER") {
           navigate("/user-dashboard");
         } else {
-          setErrorMessage("Geçersiz rol bilgisi. Lütfen tekrar deneyin.");
+          setErrorMessage("Bilinmeyen rol bilgisi.");
         }
       }
     } catch (error) {
       if (error.response && error.response.status === 403) {
-        // Eğer email status PENDING ise
         setErrorMessage("E-postanız henüz doğrulanmamış. Lütfen doğrulama sayfasına gidin.");
       } else {
         setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
       }
     }
   };
+  
 
   const handleGoToVerification = () => {
     navigate("/verify-token", { state: { email } }); // Doğrulama sayfasına yönlendirme
