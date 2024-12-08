@@ -9,8 +9,8 @@ import storyjourney.story_journey_backend.Service.JwtService;
 @Configuration
 public class JwtConfig {
     
-    @Value("${jwt.secretKey}")
-    private String secretKey;
+	@Value("${JWT_SECRET}")
+	private String secretKey;
     
     @Bean
     public JwtService jwtService() {
