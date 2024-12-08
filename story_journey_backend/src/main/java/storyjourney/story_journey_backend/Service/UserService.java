@@ -1,6 +1,7 @@
 package storyjourney.story_journey_backend.Service;
 
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -104,26 +105,49 @@ public class UserService {
         }
 
         public boolean verifyEmailToken(String token) {
+            // Token boş ya da null mı kontrolü
+            if (token == null || token.trim().isEmpty()) {
+                throw new IllegalArgumentException("Token cannot be null or empty");
+            }
+
             try {
-                // Firestore'da token'ı sorgula
-                ApiFuture<QuerySnapshot> query = db.collection("users").whereEqualTo("emailVerificationToken", token).get();
+                // Firestore'da token ile sorgu
+                ApiFuture<QuerySnapshot> query = db.collection("users")
+                                                   .whereEqualTo("emailVerificationToken", token)
+                                                   .get();
+
                 QuerySnapshot querySnapshot = query.get();
 
                 if (!querySnapshot.isEmpty()) {
+                    // Token eşleşen kullanıcı bulundu
                     QueryDocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
-                    // Kullanıcı durumunu güncelle
-                    document.getReference().update("isEmailVerified", true);
-                    document.getReference().update("status", Status.ACTIVE.toString());
-                    document.getReference().update("emailVerificationToken", null); // Token'ı temizle
+                    // Log: Kullanıcı bilgisi
+                    System.out.println("User found with token. Updating user: " + document.getId());
+
+                    // Firestore Transaction ile güncelleme
+                    db.runTransaction(transaction -> {
+                        DocumentReference docRef = document.getReference();
+                        transaction.update(docRef, "isEmailVerified", true);
+                        transaction.update(docRef, "status", Status.ACTIVE.toString());
+                        transaction.update(docRef, "emailVerificationToken", null); // Token'ı temizle
+                        return null;
+                    });
+
+                    System.out.println("User email verification and status updated successfully.");
                     return true;
                 } else {
+                    // Token eşleşen kullanıcı bulunamadı
+                    System.out.println("No user found with the provided token.");
                     return false;
                 }
             } catch (InterruptedException | ExecutionException e) {
+                // Hata durumunda log ve exception fırlatma
+                System.err.println("Error verifying email token: " + e.getMessage());
                 throw new RuntimeException("Failed to verify email token", e);
             }
         }
+
         
         public void handleForgotPassword(String email) {
             try {
