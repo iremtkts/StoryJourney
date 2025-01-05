@@ -1,12 +1,12 @@
 package storyjourney.story_journey_backend.Service;
 
 
-import org.springframework.stereotype.Service;
+
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import storyjourney.story_journey_backend.Utils.SecretKeyLoader;
+
 
 import java.util.Date;
 
@@ -14,25 +14,23 @@ import java.security.Key;
 import java.util.Base64;
 import javax.crypto.spec.SecretKeySpec;
 
+
+
 public class JwtService {
 
     private final Key hmacKey;
-    private final long validityInMilliseconds = 3600000; // 1 saat örnek
+    private final long validityInMilliseconds = 3600000; // 1 saat
 
+    // SecretKeyLoader kullanılarak secret key yükleniyor
     public JwtService(String secretKey) {
-       
         byte[] keyBytes = Base64.getDecoder().decode(secretKey);
-
-       
         this.hmacKey = new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
 
-  
     public String generateToken(String email, String role) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-       
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
@@ -42,7 +40,6 @@ public class JwtService {
                 .compact();
     }
 
-   
     public boolean validateToken(String token) {
         try {
             Claims claims = getClaims(token);
@@ -52,17 +49,14 @@ public class JwtService {
         }
     }
 
- 
     public String getEmailFromToken(String token) {
         return getClaims(token).getSubject();
     }
-
 
     public String getRoleFromToken(String token) {
         return (String) getClaims(token).get("role");
     }
 
- 
     private Claims getClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(hmacKey)
