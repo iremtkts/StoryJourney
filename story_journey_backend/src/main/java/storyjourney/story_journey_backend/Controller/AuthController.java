@@ -95,6 +95,23 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Bir hata oluştu. Lütfen tekrar deneyin.");
         }
     }
+    
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Yeni şifre boş olamaz.");
+        }
+
+        try {
+            userService.resetPassword(token, newPassword);
+            return ResponseEntity.ok("Şifre başarıyla güncellendi.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Şifre sıfırlama sırasında bir hata oluştu.");
+        }
+    }
+
 
 
 }
