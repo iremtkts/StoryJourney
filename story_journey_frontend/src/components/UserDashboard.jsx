@@ -10,6 +10,28 @@ function UserDashboard() {
 
   const BASE_URL = "http://localhost:8080/api/admin"; // Backend URL
 
+  // Geri gitmeyi engelle
+  useEffect(() => {
+    const handlePopState = () => {
+      window.history.pushState(null, null, window.location.pathname);
+    };
+
+    window.history.pushState(null, null, window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  // Oturum kontrolü
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/"); // Token yoksa giriş sayfasına yönlendir
+    }
+  }, [navigate]);
+
   useEffect(() => {
     const fetchVideos = async () => {
       try {
@@ -24,7 +46,8 @@ function UserDashboard() {
   }, []);
 
   const handleLogout = () => {
-    navigate("/");
+    localStorage.removeItem("authToken"); // Oturum token'ını temizle
+    navigate("/"); // Giriş sayfasına yönlendir
   };
 
   return (
@@ -79,14 +102,10 @@ function UserDashboard() {
                   videos.map((video) => (
                     <tr key={video.id} className="border-t">
                       <td className="p-4 text-sm text-gray-700">{video.title}</td>
-                      <td className="p-4 text-sm text-gray-500">
-                        {video.description}
-                      </td>
-                      <td className="p-4 text-sm text-gray-500">
-                        {video.ageGroup || "Bilinmiyor"}
-                      </td>
+                      <td className="p-4 text-sm text-gray-500">{video.description}</td>
+                      <td className="p-4 text-sm text-gray-500">{video.ageGroup || "Bilinmiyor"}</td>
                       <td className="p-4 text-sm flex space-x-4">
-                      <a
+                        <a
                           href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -107,10 +126,7 @@ function UserDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td
-                      colSpan="4"
-                      className="text-center p-4 text-sm text-gray-500"
-                    >
+                    <td colSpan="4" className="text-center p-4 text-sm text-gray-500">
                       Video bulunamadı.
                     </td>
                   </tr>

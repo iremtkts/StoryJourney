@@ -16,6 +16,28 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const BASE_URL = "http://localhost:8080/api/admin";
 
+  // Geri gitmeyi engelle
+  useEffect(() => {
+    const handlePopState = () => {
+      window.history.pushState(null, null, window.location.pathname);
+    };
+
+    window.history.pushState(null, null, window.location.pathname);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
+
+  // Oturum kontrolü
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      navigate("/"); // Token yoksa giriş sayfasına yönlendir
+    }
+  }, [navigate]);
+
   const formatDate = (createdAt) => {
     if (!createdAt) return "Tarih Yok";
     if (createdAt._seconds) {
@@ -86,7 +108,8 @@ function AdminDashboard() {
   }, []);
 
   const handleLogout = () => {
-    navigate("/");
+    localStorage.removeItem("authToken"); // Oturum token'ını temizle
+    navigate("/"); // Giriş sayfasına yönlendir
   };
 
   return (

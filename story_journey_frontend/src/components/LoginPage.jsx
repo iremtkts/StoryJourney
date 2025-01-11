@@ -18,8 +18,9 @@ function LoginPage() {
       });
   
       if (response.status === 200) {
-        const { role, token } = response.data; // Backend'den gelen token ve role bilgisi
-        localStorage.setItem("authToken", token); // Token'ı localStorage'a kaydet
+        const { role, token } = response.data;
+        localStorage.setItem("authToken", token); // Token'ı kaydet
+
         if (role === "ADMIN") {
           navigate("/admin-dashboard");
         } else if (role === "USER") {
@@ -29,11 +30,7 @@ function LoginPage() {
         }
       }
     } catch (error) {
-      if (error.response && error.response.status === 403) {
-        setErrorMessage("E-postanız henüz doğrulanmamış. Lütfen doğrulama sayfasına gidin.");
-      } else {
-        setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
-      }
+      setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
     }
   };
   
