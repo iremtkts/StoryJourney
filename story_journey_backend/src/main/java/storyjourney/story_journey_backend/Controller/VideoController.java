@@ -19,21 +19,26 @@ public class VideoController {
 
     @PostMapping
     public ResponseEntity<String> createVideo(@RequestBody VideoDto videoDto) {
-        // Zorunlu alanların kontrolü
+        System.out.println("İstek alındı: " + videoDto);
+
         if (videoDto.getTitle() == null || videoDto.getTitle().trim().isEmpty()) {
+            System.out.println("Hata: Başlık eksik");
             return ResponseEntity.badRequest().body("Title is required.");
         }
         if (videoDto.getDescription() == null || videoDto.getDescription().trim().isEmpty()) {
+            System.out.println("Hata: Açıklama eksik");
             return ResponseEntity.badRequest().body("Description is required.");
         }
         if (videoDto.getUrl() == null || videoDto.getUrl().trim().isEmpty()) {
+            System.out.println("Hata: URL eksik");
             return ResponseEntity.badRequest().body("URL is required.");
         }
 
-        // Video oluştur
         String videoId = videoService.createVideo(videoDto);
+        System.out.println("Video oluşturuldu, ID: " + videoId);
         return ResponseEntity.ok("Video created with ID: " + videoId);
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Video> getVideoById(@PathVariable String id) {

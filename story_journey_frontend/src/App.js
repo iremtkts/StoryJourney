@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import SignUpPage from "./components/SignUpPage";
@@ -7,6 +7,8 @@ import UserDashboard from "./components/UserDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import VerifyTokenPage from "./components/VerifyTokenPage";
 import ResetPasswordPage from "./components/ResetPasswordPage";
+import PrivateRoute from "./components/PrivateRoute";
+
 
 
 function App() {
