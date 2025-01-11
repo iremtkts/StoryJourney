@@ -4,36 +4,43 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.cloud.FirestoreClient;
 
-import org.springframework.beans.factory.annotation.Value;
+
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Base64;
+
+
 
 @Configuration
-
 public class FirebaseConfig {
 
     @Bean
-    public Firestore firestore() throws IOException {
-        String base64Creds = System.getenv("FIREBASE_CREDS");
-        if (base64Creds == null) {
-            throw new IllegalStateException("FIREBASE_CREDS not set in Heroku!");
+    public Firestore firestore() {
+        String firebaseCreds = System.getenv("FIREBASE_CREDS");
+        if (firebaseCreds == null || firebaseCreds.isEmpty()) {
+            throw new IllegalStateException("FIREBASE_CREDS environment variable is not set!");
         }
-        
-        byte[] decoded = Base64.getDecoder().decode(base64Creds);
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new ByteArrayInputStream(decoded));
-        FirebaseOptions options = FirebaseOptions.builder()
-            .setCredentials(credentials)
-            .build();
-        FirebaseApp.initializeApp(options);
-        return FirestoreClient.getFirestore();
+
+        try {
+            // JSON içeriğini bir InputStream'e dönüştür
+            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(firebaseCreds.getBytes());
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+
+            if (FirebaseApp.getApps().isEmpty()) {
+                FirebaseApp.initializeApp(options);
+            }
+
+            return com.google.firebase.cloud.FirestoreClient.getFirestore();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to initialize Firebase Firestore", e);
+        }
     }
 }

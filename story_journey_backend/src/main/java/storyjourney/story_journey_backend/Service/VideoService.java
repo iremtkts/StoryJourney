@@ -1,6 +1,5 @@
 package storyjourney.story_journey_backend.Service;
 
-
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 
@@ -30,23 +29,27 @@ public class VideoService {
         video.setIsPremium(videoDto.getIsPremium() != null ? videoDto.getIsPremium() : false);
 
         try {
-            return db.collection("videos").add(video).get().getId();
+            String videoId = db.collection("videos").add(video).get().getId();
+            video.setVideoId(videoId); // Video ID'yi sete ekle
+            return videoId;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to create video", e);
         }
     }
 
-
     public Video getVideoById(String videoId) {
         try {
-
-            return db.collection("videos").document(videoId).get().get().toObject(Video.class);
+            Video video = db.collection("videos").document(videoId).get().get().toObject(Video.class);
+            if (video == null) {
+                throw new ResourceNotFoundException("Video not found with ID: " + videoId);
+            }
+            return video;
         } catch (InterruptedException | ExecutionException e) {
-            throw new ResourceNotFoundException("Video not found with ID: " + videoId, e);
+            throw new RuntimeException("Error retrieving video with ID: " + videoId, e);
         }
     }
-    
+
     public List<Video> getAllVideos() {
         try {
             return db.collection("videos").get().get()
@@ -61,12 +64,15 @@ public class VideoService {
 
     public void deleteVideo(String videoId) {
         try {
+            if (!db.collection("videos").document(videoId).get().get().exists()) {
+                throw new ResourceNotFoundException("Video not found with ID: " + videoId);
+            }
             db.collection("videos").document(videoId).delete().get();
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete video", e);
         }
     }
-    
+
     public long getVideoViewCount(String videoId) {
         try {
             return db.collection("views")
@@ -79,6 +85,4 @@ public class VideoService {
             throw new RuntimeException("Failed to fetch view count for video", e);
         }
     }
-
-
 }

@@ -68,6 +68,11 @@ public class UserService {
     }
 
     public String createUser(UserDto userDto) {
+        // Şifre kontrolü
+        if (!isPasswordStrong(userDto.getPassword())) {
+            throw new IllegalArgumentException("Şifre yeterince güçlü değil. En az 8 karakter, bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir.");
+        }
+
         // E-posta kontrolü: Zaten kayıtlı mı?
         User existingUser = findByEmail(userDto.getEmail().toLowerCase());
         if (existingUser != null) {
@@ -96,6 +101,29 @@ public class UserService {
             throw new RuntimeException("Failed to create user", e);
         }
     }
+
+    private boolean isPasswordStrong(String password) {
+        if (password == null || password.isEmpty()) {
+            return false; // Şifre boşsa
+        }
+
+        boolean hasUppercase = password.matches(".*[A-Z].*"); // En az bir büyük harf
+        boolean hasLowercase = password.matches(".*[a-z].*"); // En az bir küçük harf
+        boolean hasDigit = password.matches(".*\\d.*");       // En az bir rakam
+        boolean hasSpecialChar = password.matches(".*[@#$%^&+=!,.?].*"); // Özel karakterler
+        boolean hasMinLength = password.length() >= 8;        // Minimum uzunluk
+
+        // Debug için log ekleyin
+        System.out.println("Uppercase: " + hasUppercase);
+        System.out.println("Lowercase: " + hasLowercase);
+        System.out.println("Digit: " + hasDigit);
+        System.out.println("Special Char: " + hasSpecialChar);
+        System.out.println("Min Length: " + hasMinLength);
+
+        return hasUppercase && hasLowercase && hasDigit && hasSpecialChar && hasMinLength;
+    }
+
+
 
 
         private void sendVerificationEmail(String email, String token) {
@@ -167,6 +195,46 @@ public class UserService {
                 sendVerificationEmail(user.getEmail(), token);
             } catch (Exception e) {
                 throw new RuntimeException("Şifre sıfırlama işlemi sırasında bir hata oluştu.", e);
+            }
+        }
+
+        public void resetPassword(String token, String newPassword) {
+            if (token == null || token.trim().isEmpty()) {
+                throw new IllegalArgumentException("Token cannot be null or empty");
+            }
+
+            // Şifre kontrolü
+            if (!isPasswordStrong(newPassword)) {
+                throw new IllegalArgumentException("Şifre yeterince güçlü değil. En az 8 karakter, bir büyük harf, bir küçük harf, bir rakam ve bir özel karakter içermelidir.");
+            }
+
+            try {
+                // Token ile kullanıcıyı bul
+                ApiFuture<QuerySnapshot> query = db.collection("users")
+                                                   .whereEqualTo("emailVerificationToken", token)
+                                                   .get();
+
+                QuerySnapshot querySnapshot = query.get();
+
+                if (!querySnapshot.isEmpty()) {
+                    QueryDocumentSnapshot document = querySnapshot.getDocuments().get(0);
+
+                    // Yeni şifreyi hash'le ve kullanıcı bilgilerini güncelle
+                    String hashedPassword = passwordEncoder.encode(newPassword);
+                    db.runTransaction(transaction -> {
+                        DocumentReference docRef = document.getReference();
+                        transaction.update(docRef, "password", hashedPassword);
+                        transaction.update(docRef, "emailVerificationToken", null); // Token'ı temizle
+                        transaction.update(docRef, "status", Status.ACTIVE.toString()); // Durumu ACTIVE yap
+                        return null;
+                    });
+
+                    System.out.println("Password updated successfully.");
+                } else {
+                    throw new IllegalArgumentException("Invalid or expired token.");
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException("Failed to reset password", e);
             }
         }
 
