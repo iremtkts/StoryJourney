@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
+import { faAppStore, faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [videos, setVideos] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Form alanları
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
@@ -16,10 +17,9 @@ function AdminDashboard() {
 
   const navigate = useNavigate();
 
-  // admin GET istekleri bu URL'yi kullansın
-  const ADMIN_URL = "http://localhost:8080/api/admin";
-  // video POST isteği bu URL'yi kullansın
-  const VIDEO_URL = "http://localhost:8080/videos";
+  // Sabit endpoint URL'leri
+  const ADMIN_USERS_URL = "http://localhost:8080/api/admin/users";  // Kullanıcı listesi
+  const VIDEOS_URL = "http://localhost:8080/videos";               // Video listeleme, ekleme, silme
 
   useEffect(() => {
     // Geri butonunu engelleme
@@ -33,7 +33,7 @@ function AdminDashboard() {
     };
   }, []);
 
-  // Oturum kontrolü
+  // Oturum kontrolü (token var mı?)
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -41,9 +41,13 @@ function AdminDashboard() {
     }
   }, [navigate]);
 
+  // Tüm kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${ADMIN_URL}/users`);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(ADMIN_USERS_URL, {
+        headers: { Authorization: `Bearer ${token}` }, // Admin rolü gerektiriyorsa ekle
+      });
       setUsers(response.data);
     } catch (error) {
       setErrorMessage("Kullanıcılar alınırken bir hata oluştu.");
@@ -51,9 +55,14 @@ function AdminDashboard() {
     }
   };
 
+  // Tüm videoları çek
   const fetchVideos = async () => {
     try {
-      const response = await axios.get(`${ADMIN_URL}/videos`);
+      const token = localStorage.getItem("authToken");
+      // (Eğer GET /videos herkese açıksa token olmadan da atılabilir, ama admin isek yine eklemen sorun olmaz.)
+      const response = await axios.get(VIDEOS_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setVideos(response.data);
     } catch (error) {
       setErrorMessage("Videolar alınırken bir hata oluştu.");
@@ -64,8 +73,11 @@ function AdminDashboard() {
   // Video silme
   const deleteVideo = async (videoId) => {
     try {
-      await axios.delete(`${ADMIN_URL}/videos/${videoId}`);
-      setVideos((prev) => prev.filter((video) => video.id !== videoId));
+      const token = localStorage.getItem("authToken");
+      await axios.delete(`${VIDEOS_URL}/${videoId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVideos((prev) => prev.filter((video) => video.videoId !== videoId));
       alert("Video başarıyla silindi!");
     } catch (error) {
       setErrorMessage("Video silinirken bir hata oluştu.");
@@ -78,12 +90,11 @@ function AdminDashboard() {
     e.preventDefault();
     setErrorMessage("");
 
-    // (Eğer token gerekiyorsa ekle, aksi halde Authorization satırını çıkar.)
     const token = localStorage.getItem("authToken");
 
     try {
       const response = await axios.post(
-        VIDEO_URL, // <-- POST isteğini bu URL'ye atıyoruz
+        VIDEOS_URL,
         {
           title,
           description,
@@ -94,15 +105,24 @@ function AdminDashboard() {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // JWT vs. gerekiyorsa ekle
+            Authorization: `Bearer ${token}`, // Sadece admin rolü POST atabilir
           },
         }
       );
-      setVideos((prev) => [...prev, response.data]);
+      // API'den dönen yanıt bir mesaj olabilir, ya da yeni obje döndürebilirsin.  
+      // Firestore "Video" entity'sinde "videoId" alanını da set etmiştik, 
+      // ama API genelde "Video created with ID: ..." gibi string döner. 
+      // "response.data" da "Video created with ID: abc123" gibi bir mesaj gelebilir.
+
+      // Tekrar videoları çekerek listeyi güncelliyoruz (veya manual ekleyebilirsin)
+      fetchVideos();
+
+      // Formu sıfırla
       setTitle("");
       setDescription("");
       setUrl("");
       setAgeGroup("");
+
       alert("Video başarıyla eklendi!");
     } catch (error) {
       console.error("Axios Hatası:", error.response || error);
@@ -115,12 +135,13 @@ function AdminDashboard() {
     fetchVideos();
   }, []);
 
+  // Çıkış
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/");
   };
 
-  // Tarih formatlayan örnek fonksiyon
+  // Tarih formatlayan örnek fonksiyon (Firestore tarih vs. varsa)
   const formatDate = (createdAt) => {
     if (!createdAt) return "Tarih Yok";
     try {
@@ -259,7 +280,7 @@ function AdminDashboard() {
                 </thead>
                 <tbody>
                   {users.map((user, index) => (
-                    <tr key={user.id} className="border-t">
+                    <tr key={user.userId || index} className="border-t">
                       <td className="p-4 text-sm text-gray-700">
                         {index + 1}
                       </td>
@@ -311,11 +332,14 @@ function AdminDashboard() {
                     <th className="text-left p-4 text-sm font-semibold text-gray-700">
                       Mağaza Linkleri
                     </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      İşlem
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {videos.map((video, index) => (
-                    <tr key={video.id} className="border-t">
+                    <tr key={video.videoId || index} className="border-t">
                       <td className="p-4 text-sm text-gray-700">
                         {index + 1}
                       </td>
@@ -329,7 +353,7 @@ function AdminDashboard() {
                         {video.ageGroup || "Bilinmiyor"}
                       </td>
                       <td className="p-4 text-sm flex space-x-4">
-                        <a
+                      <a
                           href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -345,11 +369,18 @@ function AdminDashboard() {
                         >
                           <FontAwesomeIcon icon={faGooglePlay} size="2x" />
                         </a>
+                        <a
+                          href="https://testflight.apple.com/join/XXXXXX"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
+                        >
+                          <FontAwesomeIcon icon={faApple} size="2x" />
+                        </a>
                       </td>
-                      {/* Silme butonu (istersen) */}
                       <td>
                         <button
-                          onClick={() => deleteVideo(video.id)}
+                          onClick={() => deleteVideo(video.videoId)}
                           className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
                         >
                           Sil
@@ -357,6 +388,13 @@ function AdminDashboard() {
                       </td>
                     </tr>
                   ))}
+                  {videos.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="p-4 text-center text-gray-500">
+                        Video bulunamadı
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

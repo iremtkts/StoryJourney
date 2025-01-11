@@ -15,11 +15,32 @@ function SignUpPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
+  // Şifre kontrol fonksiyonu
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) errors.push("Şifre en az 8 karakter olmalıdır.");
+    if (!/[A-Z]/.test(password)) errors.push("Şifre en az bir büyük harf içermelidir.");
+    if (!/[a-z]/.test(password)) errors.push("Şifre en az bir küçük harf içermelidir.");
+    if (!/\d/.test(password)) errors.push("Şifre en az bir rakam içermelidir.");
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password))
+      errors.push("Şifre en az bir özel karakter içermelidir.");
+    return errors;
+  };
+
   const handleSignUp = async (e) => {
     e.preventDefault();
 
+    // Şifre eşleşmesi kontrolü
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Şifreler eşleşmiyor!");
+      setSuccessMessage("");
+      return;
+    }
+
+    // Şifre kuralları kontrolü
+    const passwordErrors = validatePassword(formData.password);
+    if (passwordErrors.length > 0) {
+      setErrorMessage(passwordErrors.join(" "));
       setSuccessMessage("");
       return;
     }

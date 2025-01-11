@@ -1,26 +1,44 @@
-import React, { useState } from "react";
+/**
+ * components/LoginPage.jsx
+ */
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
 
 function LoginPage() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
   const navigate = useNavigate();
+
+
+  const { setIsAuthenticated } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
+    console.log("Login fonksiyonu çalıştı, istek gönderiliyor...");
     try {
       const response = await axios.post("http://localhost:8080/api/auth/login", {
         email,
         password,
       });
-  
+
+      console.log("Gelen yanıt:", response);
       if (response.status === 200) {
         const { role, token } = response.data;
-        localStorage.setItem("authToken", token); // Token'ı kaydet
+        console.log("role:", role, "token:", token);
 
+       
+        localStorage.setItem("authToken", token);
+
+       
+        setIsAuthenticated(true);
+
+       
         if (role === "ADMIN") {
           navigate("/admin-dashboard");
         } else if (role === "USER") {
@@ -30,13 +48,13 @@ function LoginPage() {
         }
       }
     } catch (error) {
+      console.log("Giriş hatası:", error);
       setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
     }
   };
-  
 
   const handleGoToVerification = () => {
-    navigate("/verify-token", { state: { email } }); // Doğrulama sayfasına yönlendirme
+    navigate("/verify-token", { state: { email } }); 
   };
 
   return (
@@ -53,6 +71,7 @@ function LoginPage() {
         <p className="text-center text-gray-500 mb-4">
           Platformumuza giriş yapın ve eğlenceye katılın!
         </p>
+
         {errorMessage && (
           <div className="text-red-500 text-center mb-4">
             {errorMessage}
@@ -66,12 +85,10 @@ function LoginPage() {
             )}
           </div>
         )}
+
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -84,11 +101,9 @@ function LoginPage() {
               required
             />
           </div>
+
           <div className="mb-6">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Şifre
             </label>
             <input
@@ -101,6 +116,7 @@ function LoginPage() {
               required
             />
           </div>
+
           <button
             type="submit"
             className="w-full bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500"
@@ -108,6 +124,7 @@ function LoginPage() {
             Giriş Yap
           </button>
         </form>
+
         <div className="text-center mt-4">
           <a href="/forgot-password" className="text-sm text-blue-500 hover:underline">
             Şifremi Unuttum
