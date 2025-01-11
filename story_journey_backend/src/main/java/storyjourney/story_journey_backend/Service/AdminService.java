@@ -3,15 +3,14 @@ package storyjourney.story_journey_backend.Service;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.QuerySnapshot;
-
-import storyjourney.story_journey_backend.Dto.AdminDto;
-import storyjourney.story_journey_backend.Model.Admin;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import storyjourney.story_journey_backend.Dto.AdminDto;
+import storyjourney.story_journey_backend.Model.Admin;
 
 import java.util.concurrent.ExecutionException;
+
 
 @Service
 public class AdminService {
@@ -25,6 +24,7 @@ public class AdminService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+  
     public String createAdmin(AdminDto adminDto) {
         Admin admin = new Admin();
         admin.setFirstname(adminDto.getFirstname());
@@ -37,25 +37,26 @@ public class AdminService {
         try {
             return db.collection("admins").add(admin).get().getId();
         } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException("Failed to create admin", e);
         }
     }
 
+ 
     public Admin findByEmail(String email) {
         try {
-            QuerySnapshot snapshot = db.collection("admins")
-                    .whereEqualTo("email", email)
-                    .limit(1)
-                    .get()
-                    .get(); // .get() ile Future sonucunu bekliyoruz
-
+            ApiFuture<QuerySnapshot> future = db.collection("admins")
+                                                .whereEqualTo("email", email)
+                                                .limit(1)
+                                                .get();
+            QuerySnapshot snapshot = future.get();
             if (!snapshot.isEmpty()) {
                 return snapshot.getDocuments().get(0).toObject(Admin.class);
             } else {
-                return null; // email'e sahip admin bulunamadı
+                return null;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+           
             return null;
         }
     }
