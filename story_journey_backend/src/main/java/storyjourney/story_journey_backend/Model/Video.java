@@ -4,12 +4,6 @@ import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.annotation.DocumentId;
 import com.google.cloud.firestore.annotation.ServerTimestamp;
 
-
-import lombok.Data;
-
-
-@Data
-
 public class Video {
 
     @DocumentId
@@ -22,58 +16,71 @@ public class Video {
 
     @ServerTimestamp
     private Timestamp createdAt;
+    @ServerTimestamp
     private Timestamp updatedAt;
-    
-    
-    
-	public Video() {
-    	
-    }
+
+    // Getter ve Setter'lar
     public String getVideoId() {
-		return videoId;
-	}
-	public String getTitle() {
-		return title;
-	}
-	public void setTitle(String title) {
-		this.title = title;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public String getUrl() {
-		return url;
-	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	public String getAgeGroup() {
-		return ageGroup;
-	}
-	public void setAgeGroup(String ageGroup) {
-		this.ageGroup = ageGroup;
-	}
-	public Boolean getIsPremium() {
-		return isPremium;
-	}
-	public void setIsPremium(Boolean isPremium) {
-		this.isPremium = isPremium;
-	}
-	
-	public Timestamp getCreatedAt() {
-		return createdAt;
-	}
-	public void setCreatedAt(Timestamp createdAt) {
-		this.createdAt = createdAt;
-	}
-	public Timestamp getUpdatedAt() {
-		return updatedAt;
-	}
-	public void setUpdatedAt(Timestamp updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-	
+        return videoId;
+    }
+
+    public void setVideoId(String videoId) {
+        this.videoId = videoId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getAgeGroup() {
+        return ageGroup;
+    }
+
+    public void setAgeGroup(String ageGroup) {
+        this.ageGroup = ageGroup;
+    }
+
+    public Boolean getIsPremium() {
+        return isPremium;
+    }
+
+    public void setIsPremium(Boolean isPremium) {
+        this.isPremium = isPremium;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Timestamp getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Timestamp updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
