@@ -21,6 +21,7 @@ public class FirebaseConfig {
 
     @Bean
     public Firestore firestore() {
+    	System.out.println("FirebaseConfig is initializing...");
         String firebaseCreds = System.getenv("FIREBASE_CREDS");
         if (firebaseCreds == null || firebaseCreds.isEmpty()) {
             throw new IllegalStateException("FIREBASE_CREDS environment variable is not set!");
