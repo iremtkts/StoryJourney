@@ -19,32 +19,19 @@ public class FirebaseTestController {
         this.firestore = firestore;
     }
 
-    // Tüm dokümanları okuma
-    @GetMapping("/read-all")
-    public ResponseEntity<?> getAllDocuments() {
+    @GetMapping("/test-firebase")
+    public ResponseEntity<String> testFirebase() {
         try {
-            List<Map<String, Object>> documents = firestore.collection("videos")
-                    .get()
-                    .get()
-                    .getDocuments()
-                    .stream()
-                    .map(QueryDocumentSnapshot::getData)
-                    .collect(Collectors.toList());
+            System.out.println("Starting Firebase test...");
 
-            return ResponseEntity.ok(documents);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error reading documents: " + e.getMessage());
-        }
-    }
-
-
-    // Firebase bağlantısını test etme
-    @GetMapping("/test-connection")
-    public ResponseEntity<String> testConnection() {
-        try {
+            
             firestore.collection("test").document("testDoc").get().get();
+            System.out.println("Firebase connection is successful!");
+
             return ResponseEntity.ok("Firebase connection is successful!");
         } catch (Exception e) {
+            System.err.println("Firebase connection failed: " + e.getMessage());
+            e.printStackTrace(); // Tam hata mesajını görmek için
             return ResponseEntity.status(500).body("Firebase connection failed: " + e.getMessage());
         }
     }
