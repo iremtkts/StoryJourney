@@ -29,10 +29,13 @@ class LoginViewController: UIViewController {
     private let emailTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Email"
+        textField.textColor = .black
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 8
         textField.layer.borderWidth = 1
         textField.layer.borderColor = UIColor.lightGray.cgColor
+        textField.autocapitalizationType = .none 
+        textField.keyboardType = .emailAddress
         textField.setLeftPaddingPoints(10)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -41,6 +44,7 @@ class LoginViewController: UIViewController {
     private let passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Şifre"
+        textField.textColor = .black 
         textField.isSecureTextEntry = true
         textField.backgroundColor = .white
         textField.layer.cornerRadius = 8
@@ -57,6 +61,8 @@ class LoginViewController: UIViewController {
         button.backgroundColor = UIColor.systemPink
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
+        button.isEnabled = false // Başlangıçta pasif
+        button.alpha = 0.5 // Pasif görünüm
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -78,50 +84,50 @@ class LoginViewController: UIViewController {
     }
     
     private func setupUI() {
-            // Arka plan
-            view.addSubview(backgroundImageView)
-            NSLayoutConstraint.activate([
-                backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
-                backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-                backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-            ])
-            
-            // Başlık
-            view.addSubview(titleLabel)
-            NSLayoutConstraint.activate([
-                titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
-                titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-                titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-            ])
-            
-            // Email TextField
-            view.addSubview(emailTextField)
-            NSLayoutConstraint.activate([
-                emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                emailTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50),
-                emailTextField.widthAnchor.constraint(equalToConstant: 350),
-                emailTextField.heightAnchor.constraint(equalToConstant: 50)
-            ])
-            
-            // Password TextField
-            view.addSubview(passwordTextField)
-            NSLayoutConstraint.activate([
-                passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
-                passwordTextField.widthAnchor.constraint(equalToConstant: 350),
-                passwordTextField.heightAnchor.constraint(equalToConstant: 50)
-            ])
-            
-            // Login Button
-            view.addSubview(loginButton)
-            NSLayoutConstraint.activate([
-                loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
-                loginButton.widthAnchor.constraint(equalToConstant: 350),
-                loginButton.heightAnchor.constraint(equalToConstant: 50)
-            ])
-        }
+        // Arka plan
+        view.addSubview(backgroundImageView)
+        NSLayoutConstraint.activate([
+            backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundImageView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        
+        // Başlık
+        view.addSubview(titleLabel)
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+        
+        // Email TextField
+        view.addSubview(emailTextField)
+        NSLayoutConstraint.activate([
+            emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emailTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -50),
+            emailTextField.widthAnchor.constraint(equalToConstant: 350),
+            emailTextField.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        // Password TextField
+        view.addSubview(passwordTextField)
+        NSLayoutConstraint.activate([
+            passwordTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            passwordTextField.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20),
+            passwordTextField.widthAnchor.constraint(equalToConstant: 350),
+            passwordTextField.heightAnchor.constraint(equalToConstant: 50)
+        ])
+        
+        // Login Button
+        view.addSubview(loginButton)
+        NSLayoutConstraint.activate([
+            loginButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 30),
+            loginButton.widthAnchor.constraint(equalToConstant: 350),
+            loginButton.heightAnchor.constraint(equalToConstant: 50)
+        ])
+    }
     
     private func setupBindings() {
         emailTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
@@ -130,12 +136,21 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func textFieldDidChange() {
+        let isEmailEmpty = emailTextField.text?.isEmpty ?? true
+        let isPasswordEmpty = passwordTextField.text?.isEmpty ?? true
         
-        loginButton.isEnabled = !(emailTextField.text?.isEmpty ?? true) && !(passwordTextField.text?.isEmpty ?? true)
+        loginButton.isEnabled = !isEmailEmpty && !isPasswordEmpty
+        loginButton.alpha = loginButton.isEnabled ? 1.0 : 0.5
     }
     
     @objc private func loginButtonTapped() {
-        print("Giriş yapıldı: Email: \(emailTextField.text ?? ""), Şifre: \(passwordTextField.text ?? "")")
-        // Giriş işlemleri burada yapılacak
+       
+        emailTextField.text = ""
+        passwordTextField.text = ""
+        
+        print("Giriş yapıldı!")
+        
+        let homeViewController = HomeViewController()
+        navigationController?.setViewControllers([homeViewController], animated: true)
     }
 }
