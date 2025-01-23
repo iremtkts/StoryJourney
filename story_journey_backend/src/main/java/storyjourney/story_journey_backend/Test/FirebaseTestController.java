@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/firebase-test")
+@RequestMapping("/test")
 public class FirebaseTestController {
 
     private final Firestore firestore;
@@ -19,19 +19,12 @@ public class FirebaseTestController {
         this.firestore = firestore;
     }
 
-    @GetMapping("/test-firebase")
+    @GetMapping("/firebase")
     public ResponseEntity<String> testFirebase() {
         try {
-            System.out.println("Starting Firebase test...");
-
-            
             firestore.collection("test").document("testDoc").get().get();
-            System.out.println("Firebase connection is successful!");
-
             return ResponseEntity.ok("Firebase connection is successful!");
         } catch (Exception e) {
-            System.err.println("Firebase connection failed: " + e.getMessage());
-            e.printStackTrace(); // Tam hata mesajını görmek için
             return ResponseEntity.status(500).body("Firebase connection failed: " + e.getMessage());
         }
     }

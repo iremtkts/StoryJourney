@@ -4,8 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-
-
+import com.google.firebase.cloud.FirestoreClient;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,14 +20,13 @@ public class FirebaseConfig {
 
     @Bean
     public Firestore firestore() {
-    	System.out.println("FirebaseConfig is initializing...");
         String firebaseCreds = System.getenv("FIREBASE_CREDS");
         if (firebaseCreds == null || firebaseCreds.isEmpty()) {
             throw new IllegalStateException("FIREBASE_CREDS environment variable is not set!");
         }
 
         try {
-            // JSON içeriğini bir InputStream'e dönüştür
+            System.out.println("Reading FIREBASE_CREDS...");
             ByteArrayInputStream serviceAccount = new ByteArrayInputStream(firebaseCreds.getBytes());
 
             FirebaseOptions options = FirebaseOptions.builder()
@@ -36,10 +34,14 @@ public class FirebaseConfig {
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
+                System.out.println("Initializing FirebaseApp...");
                 FirebaseApp.initializeApp(options);
+            } else {
+                System.out.println("FirebaseApp already initialized!");
             }
 
-            return com.google.firebase.cloud.FirestoreClient.getFirestore();
+            System.out.println("Returning Firestore instance...");
+            return FirestoreClient.getFirestore();
         } catch (IOException e) {
             throw new RuntimeException("Failed to initialize Firebase Firestore", e);
         }
