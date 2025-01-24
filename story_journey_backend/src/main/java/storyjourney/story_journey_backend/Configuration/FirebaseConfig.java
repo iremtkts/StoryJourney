@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import java.io.ByteArrayInputStream;
 
 import java.io.IOException;
+import java.util.Base64;
 
 
 
@@ -20,15 +21,22 @@ public class FirebaseConfig {
 
     @Bean
     public Firestore firestore() {
-        String firebaseCreds = System.getenv("FIREBASE_CREDS");
-        if (firebaseCreds == null || firebaseCreds.isEmpty()) {
-            throw new IllegalStateException("FIREBASE_CREDS environment variable is not set!");
+        
+        String firebaseCredsB64 = System.getenv("FIREBASE_CREDS_B64");
+        if (firebaseCredsB64 == null || firebaseCredsB64.isEmpty()) {
+            throw new IllegalStateException("FIREBASE_CREDS_B64 environment variable is not set!");
         }
 
         try {
-            System.out.println("Reading FIREBASE_CREDS...");
-            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(firebaseCreds.getBytes());
+            System.out.println("Reading FIREBASE_CREDS_B64...");
 
+           
+            byte[] decodedBytes = Base64.getDecoder().decode(firebaseCredsB64);
+
+           
+            ByteArrayInputStream serviceAccount = new ByteArrayInputStream(decodedBytes);
+
+            
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
