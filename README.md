@@ -6,6 +6,14 @@
 Bu uygulamada, bir yönetici (**Admin**) paneli aracılığıyla AR videolar yönetilir (ekleme, silme, güncelleme), kullanıcılar (**User**) ise kayıt olup e-posta doğrulamasını takiben bu içeriklere erişebilir. Veriler **Firestore NoSQL** veritabanında saklanır; kullanıcı kimlik doğrulaması **JWT** tabanlıdır. Proje, **SDLC**’nin 7 aşamasına göre planlanmış ve büyük ölçüde **Waterfall (Şelale) Modeli** esas alınarak hayata geçirilmiştir.
 
 ---
+### **Proje Bağlantıları**
+
+**Website Linki:** [Story Journey Website](https://wizardly-engelbart-139b63.netlify.app)
+**YouTube Video Linki:** [Proje Tanıtım Videosu](https://youtu.be/f0DAh4AGA08)
+**Detaylı Doküman Linki:** [Proje Dokümantasyonu](https://docs.google.com/document/d/1-2ScJ06N77z09B7ouz7VTKTt6WOWkbI4Fm0U4MPm15M/edit?usp=sharing)
+**Tetikleyici Görsel Linki:** [Görsel Linki](https://drive.google.com/file/d/1TyoZumApTORliGhYQILxjZ9bjM4kRNpT/view?usp=share_link)
+**Trello Linki:** [Proje Yönetimi](https://trello.com/invite/b/6728a2fb7cb389f84bd13a42/ATTI196be6c21b6be9f78949532bb073f544D545D604/ymgk-proje) 
+
 
 ## **Planlama Aşaması**
 
@@ -80,4 +88,4 @@ Bu aşamada işlevsel ve işlevsel olmayan gereksinimler netleştirilmiş, veri 
 
 ---
 
-**Trello Linki:** [Proje Yönetimi](https://trello.com/invite/b/6728a2fb7cb389f84bd13a42/ATTI196be6c21b6be9f78949532bb073f544D545D604/ymgk-proje)
+
