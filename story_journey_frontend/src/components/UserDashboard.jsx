@@ -121,6 +121,16 @@ function UserDashboard() {
                         >
                           <FontAwesomeIcon icon={faGooglePlay} size="2x" />
                         </a>
+
+                        <a
+                          href="https://forms.gle/mCAu51673jG9KJXQ7"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
+                        >
+                          <FontAwesomeIcon icon={faApple} size="2x" />
+                        </a>
+                        
                       </td>
                     </tr>
                   ))
