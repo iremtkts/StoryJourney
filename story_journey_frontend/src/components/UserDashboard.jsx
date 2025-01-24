@@ -8,7 +8,7 @@ function UserDashboard() {
   const [videos, setVideos] = useState([]);
   const navigate = useNavigate();
 
-  const BASE_URL = "http://localhost:8080/api/admin"; // Backend URL
+  const BASE_URL = "https://storyjourney-production.up.railway.app"; // Backend URL
 
   // Geri gitmeyi engelle
   useEffect(() => {

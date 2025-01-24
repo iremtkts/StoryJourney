@@ -12,7 +12,7 @@ function ForgotPasswordPage() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/auth/forgot-password",
+        "https://storyjourney-production.up.railway.app/api/auth/forgot-password",
         null,
         {
           params: { email },

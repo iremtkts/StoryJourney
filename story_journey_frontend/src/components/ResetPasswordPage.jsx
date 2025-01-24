@@ -22,18 +22,23 @@ function ResetPasswordPage() {
     }
 
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/reset-password", {
-        email,
-        token,
-        newPassword,
-      });
-
+      const response = await axios.post(
+        "https://storyjourney-production.up.railway.app/api/auth/reset-password",
+        null, // body yok
+        {
+          params: {
+            // cURL’de olduğu gibi token ve newPassword query paramına eklenecek
+            token,
+            newPassword
+          }
+        }
+      );
+    
       if (response.status === 200) {
         setSuccessMessage("Şifre başarıyla yenilendi! Giriş sayfasına yönlendiriliyorsunuz.");
         setErrorMessage("");
-
         setTimeout(() => {
-          navigate("/"); // Giriş sayfasına yönlendir
+          navigate("/");
         }, 2000);
       }
     } catch (error) {
@@ -41,7 +46,7 @@ function ResetPasswordPage() {
       setErrorMessage("Şifre sıfırlama başarısız. Lütfen tekrar deneyin.");
       setSuccessMessage("");
     }
-  };
+  }
 
   return (
     <div
@@ -110,4 +115,4 @@ function ResetPasswordPage() {
   );
 }
 
-export default ResetPasswordPage;
+export default ResetPasswordPage

@@ -2,35 +2,43 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
+import { faAppStore, faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
 
 function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const [videos, setVideos] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
 
+  // Form alanları
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
+  const [url, setUrl] = useState("");
 
   const navigate = useNavigate();
-  const BASE_URL = "http://localhost:8080/api/admin";
 
-  // Geri gitmeyi engelle
+  // Değiştirmeniz gereken URL'ler (lokal mi, railway mi, vs.)
+  // Örnek olarak localde 8080 çalışıyorsa:
+  // const ADMIN_USERS_URL = "http://localhost:8080/api/admin/users"; 
+  // const VIDEOS_URL = "http://localhost:8080/videos";
+
+  // Eğer Railway'de ise (ör.):
+  const ADMIN_USERS_URL = "https://storyjourney-production.up.railway.app/api/admin/users";
+  const VIDEOS_URL       = "https://storyjourney-production.up.railway.app/videos";
+
+  // Geri butonunu engelleme
   useEffect(() => {
     const handlePopState = () => {
       window.history.pushState(null, null, window.location.pathname);
     };
-
     window.history.pushState(null, null, window.location.pathname);
     window.addEventListener("popstate", handlePopState);
-
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
 
-  // Oturum kontrolü
+  // Oturum kontrolü (token var mı?)
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -38,20 +46,13 @@ function AdminDashboard() {
     }
   }, [navigate]);
 
-  const formatDate = (createdAt) => {
-    if (!createdAt) return "Tarih Yok";
-    if (createdAt._seconds) {
-      return new Date(createdAt._seconds * 1000).toLocaleDateString("tr-TR");
-    }
-    if (typeof createdAt === "string") {
-      return new Date(createdAt).toLocaleDateString("tr-TR");
-    }
-    return "Tarih Yok";
-  };
-
+  // Tüm kullanıcıları çek
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/users`);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(ADMIN_USERS_URL, {
+        headers: { Authorization: `Bearer ${token}` }, 
+      });
       setUsers(response.data);
     } catch (error) {
       setErrorMessage("Kullanıcılar alınırken bir hata oluştu.");
@@ -59,9 +60,14 @@ function AdminDashboard() {
     }
   };
 
+  // Tüm videoları çek
   const fetchVideos = async () => {
     try {
-      const response = await axios.get(`${BASE_URL}/videos`);
+      const token = localStorage.getItem("authToken");
+      // Token'ı header'a ekliyoruz (eğer endpoint gerektiriyorsa)
+      const response = await axios.get(VIDEOS_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setVideos(response.data);
     } catch (error) {
       setErrorMessage("Videolar alınırken bir hata oluştu.");
@@ -69,10 +75,14 @@ function AdminDashboard() {
     }
   };
 
+  // Video silme
   const deleteVideo = async (videoId) => {
     try {
-      await axios.delete(`${BASE_URL}/videos/${videoId}`);
-      setVideos((prevVideos) => prevVideos.filter((video) => video.id !== videoId));
+      const token = localStorage.getItem("authToken");
+      await axios.delete(`${VIDEOS_URL}/${videoId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setVideos((prev) => prev.filter((video) => video.videoId !== videoId));
       alert("Video başarıyla silindi!");
     } catch (error) {
       setErrorMessage("Video silinirken bir hata oluştu.");
@@ -80,36 +90,67 @@ function AdminDashboard() {
     }
   };
 
+  // Video ekleme (POST)
   const handleVideoSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
-    try {
-      const response = await axios.post(`${BASE_URL}/videos`, {
-        title,
-        description,
-        ageGroup,
-      });
+    const token = localStorage.getItem("authToken");
 
-      setVideos((prevVideos) => [...prevVideos, response.data]);
+    try {
+      const response = await axios.post(
+        VIDEOS_URL,
+        {
+          title,
+          description,
+          url,
+          ageGroup,
+          isPremium: false,  // Gerekiyorsa
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, 
+          },
+        }
+      );
+
+      // Video eklendikten sonra videoları yeniden çek
+      fetchVideos();
+
+      // Formu sıfırla
       setTitle("");
       setDescription("");
+      setUrl("");
       setAgeGroup("");
+
       alert("Video başarıyla eklendi!");
     } catch (error) {
-      setErrorMessage("Video eklenirken bir hata oluştu.");
-      console.error("Video ekleme hata:", error);
+      console.error("Axios Hatası:", error.response || error);
+      setErrorMessage(error.response?.data || "Bilinmeyen bir hata oluştu.");
     }
   };
 
+  // Bileşen yüklendiğinde kullanıcılar ve videoları çek
   useEffect(() => {
     fetchUsers();
     fetchVideos();
   }, []);
 
+  // Çıkış
   const handleLogout = () => {
-    localStorage.removeItem("authToken"); // Oturum token'ını temizle
-    navigate("/"); // Giriş sayfasına yönlendir
+    localStorage.removeItem("authToken");
+    navigate("/");
+  };
+
+  // Tarih formatlayan örnek fonksiyon
+  const formatDate = (createdAt) => {
+    if (!createdAt) return "Tarih Yok";
+    try {
+      return new Date(createdAt).toLocaleDateString("tr-TR");
+    } catch (e) {
+      return "Tarih Yok";
+    }
   };
 
   return (
@@ -117,9 +158,7 @@ function AdminDashboard() {
       {/* Navigasyon */}
       <nav
         className="shadow p-4 flex justify-between items-center"
-        style={{
-          background: "linear-gradient(to right, #A9D4C0, #F3F6F4)",
-        }}
+        style={{ background: "linear-gradient(to right, #A9D4C0, #F3F6F4)" }}
       >
         <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
         <div>
@@ -127,10 +166,7 @@ function AdminDashboard() {
           <button
             onClick={handleLogout}
             className="py-1 px-3 rounded hover:opacity-90"
-            style={{
-              backgroundColor: "#8FBFAD",
-              color: "white",
-            }}
+            style={{ backgroundColor: "#8FBFAD", color: "white" }}
           >
             Çıkış Yap
           </button>
@@ -140,12 +176,16 @@ function AdminDashboard() {
       {/* İçerik */}
       <main className="p-6 space-y-6">
         {errorMessage && (
-          <div className="text-red-500 bg-red-100 p-4 rounded-lg">{errorMessage}</div>
+          <div className="text-red-500 bg-red-100 p-4 rounded-lg">
+            {errorMessage}
+          </div>
         )}
 
         {/* Yeni Video Ekleme Formu */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Yeni Video Ekle</h2>
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Yeni Video Ekle
+          </h2>
           <div className="p-4 bg-white rounded-lg shadow-lg">
             <form onSubmit={handleVideoSubmit} className="space-y-4">
               <div>
@@ -178,16 +218,26 @@ function AdminDashboard() {
                   value={ageGroup}
                   onChange={(e) => setAgeGroup(e.target.value)}
                   className="w-full border border-gray-300 rounded p-2"
-                  placeholder="Yaş grubu (örn: 3-6 yaş)"
+                  placeholder="Örn: 3-6 yaş"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 mb-2">Video URL</label>
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  required
+                  className="w-full border border-gray-300 rounded p-2"
+                  placeholder="Video URL'sini girin"
                 />
               </div>
 
               <button
                 type="submit"
                 className="py-2 px-4 rounded text-white"
-                style={{
-                  backgroundColor: "#8FBFAD",
-                }}
+                style={{ backgroundColor: "#8FBFAD" }}
               >
                 Video Ekle
               </button>
@@ -197,31 +247,58 @@ function AdminDashboard() {
 
         {/* Kullanıcı Tablosu */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Kullanıcılar</h2>
-          <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Tüm Kullanıcılar
+          </h2>
+          <div
+            className="p-1 rounded-lg shadow-lg"
+            style={{ backgroundColor: "#A9D4C0" }}
+          >
+            <div
+              className="overflow-y-auto bg-white p-4 rounded-lg"
+              style={{ maxHeight: "300px" }}
+            >
               <table className="min-w-full bg-white">
                 <thead>
                   <tr>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">#</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Ad Soyad</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Email</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Doğrulama Durumu</th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      #
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Ad Soyad
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Email
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Doğrulama Durumu
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((user, index) => (
-                    <tr key={user.id} className="border-t">
-                      <td className="p-4 text-sm text-gray-700">{index + 1}</td>
+                    <tr key={user.userId || index} className="border-t">
+                      <td className="p-4 text-sm text-gray-700">
+                        {index + 1}
+                      </td>
                       <td className="p-4 text-sm text-gray-700">
                         {user.firstname} {user.lastname}
                       </td>
-                      <td className="p-4 text-sm text-gray-700">{user.email}</td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {user.email}
+                      </td>
                       <td className="p-4 text-sm text-gray-700">
                         {user.isEmailVerified ? "Doğrulandı" : "Doğrulanmadı"}
                       </td>
                     </tr>
                   ))}
+                  {users.length === 0 && (
+                    <tr>
+                      <td colSpan="4" className="p-4 text-center text-gray-500">
+                        Kullanıcı bulunamadı.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -230,26 +307,55 @@ function AdminDashboard() {
 
         {/* Video Tablosu */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-700 mb-4">Tüm Videolar</h2>
-          <div className="p-1 rounded-lg shadow-lg" style={{ backgroundColor: "#A9D4C0" }}>
-            <div className="overflow-y-auto bg-white p-4 rounded-lg" style={{ maxHeight: "300px" }}>
+          <h2 className="text-2xl font-bold text-gray-700 mb-4">
+            Tüm Videolar
+          </h2>
+          <div
+            className="p-1 rounded-lg shadow-lg"
+            style={{ backgroundColor: "#A9D4C0" }}
+          >
+            <div
+              className="overflow-y-auto bg-white p-4 rounded-lg"
+              style={{ maxHeight: "300px" }}
+            >
               <table className="min-w-full bg-white">
                 <thead>
                   <tr>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">#</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Başlık</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Açıklama</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Yaş Grubu</th>
-                    <th className="text-left p-4 text-sm font-semibold text-gray-700">Mağaza Linkleri</th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      #
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Başlık
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Açıklama
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Yaş Grubu
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      Mağaza Linkleri
+                    </th>
+                    <th className="text-left p-4 text-sm font-semibold text-gray-700">
+                      İşlem
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {videos.map((video, index) => (
-                    <tr key={video.id} className="border-t">
-                      <td className="p-4 text-sm text-gray-700">{index + 1}</td>
-                      <td className="p-4 text-sm text-gray-700">{video.title}</td>
-                      <td className="p-4 text-sm text-gray-700">{video.description}</td>
-                      <td className="p-4 text-sm text-gray-700">{video.ageGroup || "Bilinmiyor"}</td>
+                    <tr key={video.videoId || index} className="border-t">
+                      <td className="p-4 text-sm text-gray-700">
+                        {index + 1}
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {video.title}
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {video.description}
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {video.ageGroup || "Bilinmiyor"}
+                      </td>
                       <td className="p-4 text-sm flex space-x-4">
                         <a
                           href="https://apps.apple.com/tr/app/overly/id917343353?l=tr"
@@ -267,9 +373,32 @@ function AdminDashboard() {
                         >
                           <FontAwesomeIcon icon={faGooglePlay} size="2x" />
                         </a>
+                        <a
+                          href="https://testflight.apple.com/join/XXXXXX"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-700 hover:text-gray-900"
+                        >
+                          <FontAwesomeIcon icon={faApple} size="2x" />
+                        </a>
+                      </td>
+                      <td className="p-4 text-sm">
+                        <button
+                          onClick={() => deleteVideo(video.videoId)}
+                          className="bg-red-500 hover:bg-red-600 text-white py-1 px-2 rounded"
+                        >
+                          Sil
+                        </button>
                       </td>
                     </tr>
                   ))}
+                  {videos.length === 0 && (
+                    <tr>
+                      <td colSpan="6" className="p-4 text-center text-gray-500">
+                        Video bulunamadı
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

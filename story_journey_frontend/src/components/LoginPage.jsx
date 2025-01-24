@@ -1,25 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const { setIsAuthenticated } = useContext(AuthContext); 
 
   const handleLogin = async (e) => {
     e.preventDefault();
   
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/login", {
+      const response = await axios.post("https://storyjourney-production.up.railway.app/api/auth/login", {
         email,
         password,
       });
   
+      console.log("response.status:", response.status); 
+      console.log("response.data:", response.data);     
+
       if (response.status === 200) {
         const { role, token } = response.data;
         localStorage.setItem("authToken", token); // Token'ı kaydet
+        
+        setIsAuthenticated(true);
 
         if (role === "ADMIN") {
           navigate("/admin-dashboard");
@@ -30,6 +37,7 @@ function LoginPage() {
         }
       }
     } catch (error) {
+      console.error("Login error:", error);  
       setErrorMessage("Giriş bilgileri hatalı. Lütfen tekrar deneyin.");
     }
   };

@@ -15,7 +15,7 @@ function VerifyTokenPage() {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/users/verify",
+        "https://storyjourney-production.up.railway.app/api/users/verify",
         null,
         {
           params: { token },

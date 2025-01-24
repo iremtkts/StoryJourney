@@ -26,7 +26,7 @@ function SignUpPage() {
 
     try {
       // Backend'e kayıt isteği gönder
-      const response = await axios.post("http://localhost:8080/api/users", {
+      const response = await axios.post( "https://storyjourney-production.up.railway.app/api/users", {
         firstname: formData.firstname,
         lastname: formData.lastname,
         email: formData.email,
