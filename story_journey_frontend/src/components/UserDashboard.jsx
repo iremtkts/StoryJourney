@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faAppStore, faGooglePlay } from "@fortawesome/free-brands-svg-icons";
+import { faAppStore, faGooglePlay, faApple } from "@fortawesome/free-brands-svg-icons";
 
 function UserDashboard() {
   const [videos, setVideos] = useState([]);
@@ -130,7 +130,7 @@ function UserDashboard() {
                         >
                           <FontAwesomeIcon icon={faApple} size="2x" />
                         </a>
-                        
+
                       </td>
                     </tr>
                   ))
